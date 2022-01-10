@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="525.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.Index">
+    <children>
+        <Label fx:id="LoginLabel" alignment="CENTER" layoutX="2.0" layoutY="73.0" prefHeight="68.0" prefWidth="800.0" text="Next scene" textAlignment="CENTER">
+            <font>
+                <Font size="46.0" />
+            </font>
+        </Label>
+        <Label fx:id="zone_id" alignment="CENTER_RIGHT" layoutX="429.0" layoutY="569.0" prefHeight="21.0" prefWidth="373.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="400.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="569.0">
+            <opaqueInsets>
+                <Insets right="10.0" />
+            </opaqueInsets>
+            <padding>
+                <Insets right="10.0" />
+            </padding></Label>
+      <ComboBox fx:id="appointment_dropdown" layoutX="164.0" layoutY="465.0" onAction="#appointmentSelect" prefWidth="150.0" promptText="Appointments" />
+      <ComboBox fx:id="customer_dropdown" layoutX="164.0" layoutY="499.0" onAction="#customerSelect" prefWidth="150.0" promptText="Customers" />
+      <ComboBox fx:id="contact_dropdown" layoutX="164.0" layoutY="533.0" onAction="#contactSelect" prefWidth="150.0" promptText="Contacts" />
+      <Button fx:id="appointment_edit_button" layoutX="324.0" layoutY="465.0" mnemonicParsing="false" onAction="#addEditAppointment" text="Add" />
+      <Button fx:id="customer_edit_button" layoutX="324.0" layoutY="499.0" mnemonicParsing="false" onAction="#addEditCustomer" text="Add" />
+      <Button fx:id="contact_edit_button" layoutX="324.0" layoutY="533.0" mnemonicParsing="false" onAction="#addEditContact" text="Add" />
+      <Label fx:id="signed_in_as" layoutX="14.0" layoutY="571.0" text="Signed in as: &lt;null&gt;" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
+    </children>
+</AnchorPane>
