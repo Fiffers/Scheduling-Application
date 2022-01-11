@@ -23,7 +23,5 @@ public class Alert {
         alert.setContentText(resources.getString(message));
         button.getStyleClass().add("primary");
         alert.showAndWait();
-
-
     }
 }

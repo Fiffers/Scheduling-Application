@@ -21,17 +21,12 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class Index implements Initializable {
-//    @FXML private ComboBox appointment_dropdown, customer_dropdown, contact_dropdown;
-    @FXML private Button appointment_edit_button, customer_edit_button, contact_edit_button;
     @FXML private Label signed_in_as, sign_out;
-//    @FXML private TableColumn contact_name, contact_email;
     @FXML private TableView appointments_table, customers_table, contacts_table;
 
     static String DB_URL = "jdbc:mysql://localhost:3306/client_schedule?connectionTimeZone=SERVER";
     static String DB_USERNAME = "sqlUser";
     static String DB_PASSWORD = "Passw0rd!";
-
-    String addString = "-----Add New-----";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
