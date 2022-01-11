@@ -1,7 +1,9 @@
 package main;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -11,6 +13,7 @@ import java.util.Locale;
 
 public class Main extends Application {
     public static String username;
+    public static Integer userID;
     boolean franceToggle = false;
     /**
      * Creates stage, applies scene to it, and shows the stage.
@@ -31,8 +34,11 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("/view/Login.fxml"), resources);
 
         stage.setTitle(resources.getString("login"));
-        stage.setScene(new Scene(root, 800, 600));
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add("/resources/bootstrap.css");
+        stage.setScene(scene);
         stage.show();
+        root.requestFocus();
     }
 
     /**

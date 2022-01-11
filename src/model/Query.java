@@ -1,5 +1,7 @@
 package model;
 
+import main.Main;
+
 import java.sql.*;
 
 import static utilities.Print.print;
@@ -47,6 +49,8 @@ public class Query {
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(string)) {
             if (rs.next() == true) {
+                Main.username = rs.getString("User_Name");
+                Main.userID = Integer.valueOf(rs.getString("User_ID"));
                 toggle = true;
             }
         } catch (SQLException e) {
