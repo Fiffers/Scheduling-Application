@@ -20,30 +20,6 @@ public class Query {
     private static final String DB_PASSWORD = "Passw0rd!";
 
     /**
-     * Resets the database to defaults defined in C195NewDB.sql
-     * @throws Exception
-     */
-    public static void resetDatabase() throws Exception {
-        try {
-            String st;
-
-            File file = new File("src/resources/C195NewDB.sql");
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            while ((st = br.readLine()) != null) {
-                if(!st.equals("")) {
-                    String ch = Character.toString(st.charAt(0));
-                    if (!ch.equals("-")) {
-                        Query.updateDatabase(st);
-                    }
-                }
-            }
-            System.out.println("Database has been reset to defaults!");
-        } catch (Exception e) {
-            throw new Exception("Unable to reset database to defaults!", e);
-        }
-    }
-
-    /**
      * Updates the database
      * @param string The SQL query to be executed
      * @throws SQLException
