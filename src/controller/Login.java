@@ -4,31 +4,22 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import utilities.Popup;
 
-import java.awt.*;
 import java.net.URL;
 import java.time.ZoneId;
 import java.util.ResourceBundle;
 
-import static javafx.geometry.Pos.CENTER;
 import static model.Query.auth;
-import static utilities.Alert.*;
-
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.TextAlignment;
-import javafx.stage.Stage;
-import main.Main;
-import utilities.Alert;
 
 public class Login implements Initializable {
 
@@ -66,24 +57,7 @@ public class Login implements Initializable {
             root.requestFocus();
         }
         else {
-            Alert.okayAlert("error", "ok", "login_error");
+            Popup.errorAlert("error", "login_error");
         }
-//        else if (toggle == false) {
-//            AnchorPane login_error_anchor = new AnchorPane();
-//            Label login_error = new Label();
-//            login_error.setVisible(true);
-//            login_error.setText(resources.getString("login_error"));
-//            login_error.setMaxWidth(295);
-//            login_error.setWrapText(true);
-//            login_error.setStyle("-fx-text-fill: red");
-//            login_error.setTextAlignment(TextAlignment.CENTER);
-//            login_error_anchor.getChildren().add(login_error);
-//            login_vbox.getChildren().remove(login_error_anchor);
-//            login_vbox.getChildren().add(login_error_anchor);
-//
-//            Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-//            stage.sizeToScene();
-//            toggle = true;
-//        }
     }
 }

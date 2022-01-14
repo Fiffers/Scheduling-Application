@@ -1,20 +1,24 @@
 package main;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Locale;
+
+import utilities.Popup;
+import model.Query;
 
 public class Main extends Application {
     public static String username;
     public static Integer userID;
     boolean franceToggle = false;
+    static boolean defaultDatabase = false;
     /**
      * Creates stage, applies scene to it, and shows the stage.
      */
@@ -39,14 +43,20 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
         root.requestFocus();
+
+        if (defaultDatabase == true) {
+            Optional<ButtonType> result = Popup.confirmationAlert("database_reset", "reset_confirm");
+            if (result.get().getText() == resources.getString("yes")) {
+                Query.resetDatabase();
+            }
+        }
     }
 
     /**
      * Main function where the program begins.
      * @param args Unused
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         launch(args);
-
     }
 }
