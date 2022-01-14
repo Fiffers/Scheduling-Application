@@ -31,7 +31,7 @@ public class Index implements Initializable {
         signed_in_as.setText("Signed in as: " + Main.username);
 
         try {
-            tableViewInsertData(appointments_table, "SELECT Title, Description, Location, Type, Start, End, Customer_ID, Contact_ID FROM appointments");
+            tableViewInsertData(appointments_table, "SELECT Title, Description, Location, Type, Start, End, customers.Customer_Name, contacts.Contact_Name FROM appointments INNER JOIN customers on appointments.Customer_ID=customers.Customer_ID JOIN contacts on appointments.Contact_ID=contacts.Contact_ID");
             tableViewInsertData(customers_table, "SELECT Customer_Name, Address, Postal_Code, Phone, Division_ID FROM customers");
             tableViewInsertData(contacts_table, "SELECT Contact_Name, Email FROM contacts");
         } catch (SQLException e) {
@@ -85,5 +85,9 @@ public class Index implements Initializable {
 
     public void removeUnderline(MouseEvent mouseEvent) {
         sign_out.setUnderline(false);
+    }
+
+    public void selectAppointment(MouseEvent mouseEvent) {
+
     }
 }

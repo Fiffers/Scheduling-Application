@@ -13,12 +13,13 @@ import java.util.Locale;
 
 import utilities.Popup;
 import model.Query;
+import utilities.ResetDatabase;
 
 public class Main extends Application {
     public static String username;
     public static Integer userID;
     boolean franceToggle = false;
-    static boolean defaultDatabase = false;
+    static boolean resetDatabaseToDefaults = true;
     /**
      * Creates stage, applies scene to it, and shows the stage.
      */
@@ -44,10 +45,10 @@ public class Main extends Application {
         stage.show();
         root.requestFocus();
 
-        if (defaultDatabase == true) {
+        if (resetDatabaseToDefaults == true) {
             Optional<ButtonType> result = Popup.confirmationAlert("database_reset", "reset_confirm");
             if (result.get().getText() == resources.getString("yes")) {
-                Query.resetDatabase();
+                ResetDatabase.toDefaults();
             }
         }
     }
