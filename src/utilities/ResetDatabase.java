@@ -1,6 +1,6 @@
 package utilities;
 
-import model.Query;
+import database.DBInteraction;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,7 +21,7 @@ public class ResetDatabase {
                 if(!st.equals("")) {
                     String ch = Character.toString(st.charAt(0));
                     if (!ch.equals("-")) {
-                        Query.updateDatabase(st);
+                        DBInteraction.update(st);
                     }
                 }
             }

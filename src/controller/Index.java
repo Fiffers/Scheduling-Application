@@ -1,5 +1,6 @@
 package controller;
 
+import database.DBConnection;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -11,27 +12,30 @@ import javafx.scene.input.MouseEvent;
 
 import javafx.util.Callback;
 import main.Main;
-import model.Query;
+import database.DBInteraction;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 
+import java.util.Objects;
 import java.util.ResourceBundle;
 
-public class Index implements Initializable {
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/client_schedule?connectionTimeZone=SERVER";
-    private static final String DB_USERNAME = "sqlUser";
-    private static final String DB_PASSWORD = "Passw0rd!";
+import static utilities.Print.print;
 
+public class Index implements Initializable {
     @FXML private Label signed_in_as, sign_out;
     @FXML private TableView appointments_table, customers_table, contacts_table;
+    @FXML private Button appointment_edit_button, customer_edit_button, contact_edit_button;
+
+
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         signed_in_as.setText("Signed in as: " + Main.username);
 
         try {
-            tableViewInsertData(appointments_table, "SELECT Title, Description, Location, Type, Start, End, customers.Customer_Name, contacts.Contact_Name FROM appointments INNER JOIN customers on appointments.Customer_ID=customers.Customer_ID JOIN contacts on appointments.Contact_ID=contacts.Contact_ID");
+            tableViewInsertData(appointments_table, "SELECT Appointment_ID, Title, Description, Location, Type, Start, End, customers.Customer_Name, contacts.Contact_Name FROM appointments INNER JOIN customers on appointments.Customer_ID=customers.Customer_ID JOIN contacts on appointments.Contact_ID=contacts.Contact_ID");
             tableViewInsertData(customers_table, "SELECT Customer_Name, Address, Postal_Code, Phone, Division_ID FROM customers");
             tableViewInsertData(contacts_table, "SELECT Contact_Name, Email FROM contacts");
         } catch (SQLException e) {
@@ -47,47 +51,57 @@ public class Index implements Initializable {
      * @throws SQLException
      */
     public void tableViewInsertData(TableView tableView, String string) throws SQLException {
-        ObservableList<Object> rowResults = Query.queryDatabase(string);
+        ObservableList<Object> rowResults = DBInteraction.query(string);
 
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
-             Statement statement = connection.createStatement();  ResultSet result = statement.executeQuery(string);){
-            ResultSetMetaData metadata = result.getMetaData();
-            int columnCount = metadata.getColumnCount();
+        try {
+            PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
+            ResultSet result = ps.executeQuery();
 
-            for (int i = 0; i < columnCount; i++) {
+            for (int i = 0; i < result.getMetaData().getColumnCount(); i++) {
                 final int j = i;
                 TableColumn column = new TableColumn(result.getMetaData().getColumnName(i + 1).replace("_", " ").replace(" ID", ""));
                 column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                     public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
-                        return new SimpleStringProperty(param.getValue().get(j).toString());
+                        String cellText = param.getValue().get(j).toString();
+                        return new SimpleStringProperty(cellText);
                     }
                 });
-                tableView.getColumns().addAll(column);
-
+                /** Make sure the primary key is hidden in the tableview, but is still accessible */
+                if (Objects.equals(column.textProperty().getValue(), "Appointment")) {
+                    tableView.getColumns().addAll(column);
+                    column.setVisible(false);
+                }
+                else {
+                    tableView.getColumns().addAll(column);
+                }
             }
             tableView.setItems(rowResults);
 
         } catch (SQLException e) {
-            throw new IllegalStateException("Cannot connect the database!", e);
+            e.printStackTrace();
         }
     }
 
-    public void addAppointment(ActionEvent actionEvent) throws Exception {    }
-    public void addContact(ActionEvent actionEvent) throws Exception {    }
-    public void addCustomer(ActionEvent actionEvent) throws Exception {    }
-    public void editAppointment(ActionEvent actionEvent) throws Exception {    }
-    public void editContact(ActionEvent actionEvent) throws Exception {    }
-    public void editCustomer(ActionEvent actionEvent) throws Exception {    }
-
-    public void addUnderline(MouseEvent mouseEvent) {
+    public void addAppointment(ActionEvent event) throws Exception {
+        SceneController.changeScene("/view/AddEditAppointment.fxml", "Add Appointment", event);
+    }
+    public void addContact(ActionEvent event) throws Exception {    }
+    public void addCustomer(ActionEvent event) throws Exception {    }
+    public void editAppointment(ActionEvent event) throws Exception {
+        ObservableList selectedItems = appointments_table.getSelectionModel().getSelectedItems();
+        SceneController.changeScene("/view/AddEditAppointment.fxml", "Add Appointment", event);
+    }
+    public void editContact(ActionEvent event) throws Exception {    }
+    public void editCustomer(ActionEvent event) throws Exception {    }
+    public void addUnderline(MouseEvent event) {
         sign_out.setUnderline(true);
     }
-
-    public void removeUnderline(MouseEvent mouseEvent) {
+    public void removeUnderline(MouseEvent event) {
         sign_out.setUnderline(false);
     }
-
-    public void selectAppointment(MouseEvent mouseEvent) {
-
+    public void selectAppointment(MouseEvent event) throws IOException {
+        Main.selectedAppointment = appointments_table.getSelectionModel().getSelectedItems();
+        appointment_edit_button.setDisable(false);
     }
+
 }

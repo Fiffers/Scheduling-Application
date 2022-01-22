@@ -1,6 +1,8 @@
 package main;
 
+import database.DBConnection;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -12,14 +14,15 @@ import java.util.ResourceBundle;
 import java.util.Locale;
 
 import utilities.Popup;
-import model.Query;
 import utilities.ResetDatabase;
 
 public class Main extends Application {
+    public static ObservableList selectedAppointment = null;
+
     public static String username;
     public static Integer userID;
     boolean franceToggle = false;
-    static boolean resetDatabaseToDefaults = true;
+    static boolean resetDatabaseToDefaults = false;
     /**
      * Creates stage, applies scene to it, and shows the stage.
      */
@@ -58,6 +61,8 @@ public class Main extends Application {
      * @param args Unused
      */
     public static void main(String[] args) throws Exception {
+        DBConnection.startConnection();
         launch(args);
+        DBConnection.closeConnection();
     }
 }

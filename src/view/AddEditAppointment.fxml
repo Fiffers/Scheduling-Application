@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane stylesheets="@../resources/bootstrap.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AddEditAppointment">
+    <children>
+      <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Group>
+               <children>
+                  <VBox>
+                     <children>
+                        <AnchorPane>
+                           <children>
+                                <Label fx:id="LoginLabel" alignment="CENTER" contentDisplay="CENTER" text="Add Appointment" AnchorPane.topAnchor="0.0">
+                                    <font>
+                                        <Font size="46.0" />
+                                    </font>
+                                </Label>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane>
+                           <children>
+                              <HBox spacing="10.0">
+                                 <children>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Appointment ID" />
+                                          <TextField fx:id="appointment_id" disable="true" />
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                          <Label text="TItle" />
+                                          <TextField fx:id="appointment_title" />
+                                          <Label text="Start" />
+                                          <DatePicker />
+                                          <Label text="Customer" />
+                                          <ComboBox prefWidth="176.0" />
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Location" />
+                                          <TextField fx:id="appointment_location" />
+                                          <Label text="End" />
+                                          <DatePicker />
+                                          <Label text="Contact" />
+                                          <ComboBox prefWidth="176.0" />
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Description" />
+                                          <TextArea fx:id="appointment_description" maxHeight="125.0" maxWidth="315.0" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </AnchorPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </VBox>
+               </children>
+               <StackPane.margin>
+                  <Insets />
+               </StackPane.margin>
+            </Group>
+         </children>
+      </StackPane>
+    </children>
+</AnchorPane>

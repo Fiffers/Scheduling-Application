@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane stylesheets="@../resources/bootstrap.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.Index">
+<AnchorPane stylesheets="@../resources/bootstrap.css" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.Index">
     <children>
       <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -44,7 +44,7 @@
                                           <Font size="16.0" />
                                        </font>
                                     </Label>
-                                    <TableView fx:id="appointments_table" maxHeight="100.0" minHeight="100.0" styleClass="column-header">
+                                    <TableView fx:id="appointments_table" maxHeight="100.0" minHeight="100.0" onMouseClicked="#selectAppointment" styleClass="column-header">
                                        <columnResizePolicy>
                                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                        </columnResizePolicy>
