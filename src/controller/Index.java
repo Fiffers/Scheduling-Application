@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -13,23 +14,23 @@ import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 import main.Main;
 import database.DBInteraction;
+import utilities.Popup;
+import utilities.RemoveSquareBrackets;
+import utilities.ResetDatabase;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
-
-import static utilities.Print.print;
 
 public class Index implements Initializable {
     @FXML private Label signed_in_as, sign_out;
     @FXML private TableView appointments_table, customers_table, contacts_table;
-    @FXML private Button appointment_edit_button, customer_edit_button, contact_edit_button;
+    @FXML private Button appointment_edit, customer_edit, contact_edit, appointment_delete, customer_delete, contact_delete;
 
-
-    
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         signed_in_as.setText("Signed in as: " + Main.username);
@@ -83,16 +84,18 @@ public class Index implements Initializable {
     }
 
     public void addAppointment(ActionEvent event) throws Exception {
-        SceneController.changeScene("/view/AddEditAppointment.fxml", "Add Appointment", event);
+        SceneController.changeScene("/view/AddEditAppointment.fxml", "Add Appointment", event, false);
     }
-    public void addContact(ActionEvent event) throws Exception {    }
-    public void addCustomer(ActionEvent event) throws Exception {    }
     public void editAppointment(ActionEvent event) throws Exception {
-        ObservableList selectedItems = appointments_table.getSelectionModel().getSelectedItems();
-        SceneController.changeScene("/view/AddEditAppointment.fxml", "Add Appointment", event);
+        SceneController.changeScene("/view/AddEditAppointment.fxml", "Edit Appointment", event, true);
     }
-    public void editContact(ActionEvent event) throws Exception {    }
+
+    public void addCustomer(ActionEvent event) throws Exception {    }
     public void editCustomer(ActionEvent event) throws Exception {    }
+
+    public void addContact(ActionEvent event) throws Exception {    }
+    public void editContact(ActionEvent event) throws Exception {    }
+
     public void addUnderline(MouseEvent event) {
         sign_out.setUnderline(true);
     }
@@ -101,7 +104,26 @@ public class Index implements Initializable {
     }
     public void selectAppointment(MouseEvent event) throws IOException {
         Main.selectedAppointment = appointments_table.getSelectionModel().getSelectedItems();
-        appointment_edit_button.setDisable(false);
+        appointment_edit.setDisable(false);
+        appointment_delete.setDisable(false);
+    }
+
+    public void deleteAppointment(Event event) throws SQLException, IOException {
+        String selectedRow = Main.selectedAppointment.get(0).toString();
+        selectedRow = RemoveSquareBrackets.go(selectedRow);
+        String[] selectedRowArray = selectedRow.split(", ");
+        boolean result = Popup.confirmationAlert("Are you sure?", "Are you sure you'd like to delete this appointment?");
+
+        if (result) {
+            DBInteraction.update("DELETE FROM appointments WHERE Appointment_ID = '" + selectedRowArray[0] + "'");
+            SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
+        }
+    }
+    public void deleteCustomer(Event event) {}
+    public void deleteContact(Event event) {}
+
+    public void signOut(Event event) throws IOException {
+//    Do nothing..?
     }
 
 }

@@ -4,8 +4,8 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Alert;
+import main.Main;
 
-import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -15,9 +15,7 @@ import static utilities.Print.print;
  * This class handles all alert popups the application needs.
  */
 public class Popup {
-    /** Get localization bundle */
-    static ResourceBundle resources = ResourceBundle.getBundle("Localization");
-
+    static ResourceBundle resources = Main.getResources();
     /**
      * Builds out the basic bits of the alert pane
      * @param title The title for the pane
@@ -26,8 +24,17 @@ public class Popup {
      * @return The alert object
      */
     public static Alert buildAlert (String title, String message, Alert alert) {
-        alert.setTitle(resources.getString(title));
-        alert.setContentText(resources.getString(message));
+
+        alert.setTitle(title);
+        alert.setContentText(message);
+
+        try {
+            alert.setTitle(resources.getString(title));
+            alert.setContentText(resources.getString(message));
+        } catch (Exception e) {
+            // ignore cause I truly do not care
+        }
+
         alert.getButtonTypes().clear();
 
         /** Add custom CSS to the pane */
@@ -38,7 +45,7 @@ public class Popup {
 
     /**
      * Builds the buttons for the alert pane
-     * @param buttonCount Number of buttons to add to the pane. Must == buttonText.length
+     * @param buttonCount Number of buttons to add to the pane. Must == buttonText.length!
      * @param buttonText Array of strings containing text to go on buttons
      * @param alert The alert object
      * @return The alert object
@@ -46,7 +53,14 @@ public class Popup {
     public static Alert buildButtons (int buttonCount, String[] buttonText, Alert alert){
         try {
             for (int i = 0; i < buttonCount; i++) {
-                ButtonType buttonType = new ButtonType(resources.getString(buttonText[i]));
+                ButtonType buttonType = new ButtonType(buttonText[i]);
+                try {
+                    buttonType = new ButtonType(resources.getString(buttonText[i]));
+                } catch (Exception e) {
+                    // Dont care
+                }
+
+
                 alert.getButtonTypes().add(buttonType);
                 Node button = alert.getDialogPane().lookupButton(buttonType);
                 button.getStyleClass().add("primary");
@@ -76,11 +90,16 @@ public class Popup {
      * @param message The message for the alert
      * @return user button selection
      */
-    public static Optional<ButtonType> confirmationAlert(String title, String message) {
+    public static boolean confirmationAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert = buildAlert(title, message, alert);
         alert = buildButtons(2, new String[]{"yes", "no"}, alert);
         Optional<ButtonType> result = alert.showAndWait();
-        return result;
+        if (result.get().getText().equals(resources.getString("yes"))) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

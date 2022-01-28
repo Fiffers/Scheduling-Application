@@ -6,6 +6,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import main.Main;
 import utilities.Popup;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class Login implements Initializable {
     @FXML private PasswordField login_password;
     @FXML private Label  zone_id;
 
-    ResourceBundle resources = ResourceBundle.getBundle("Localization");
+    ResourceBundle resources = Main.getResources();
 
     /**
      * Sets the text to display which time zone the user is in.
@@ -54,7 +55,7 @@ public class Login implements Initializable {
         boolean auth = auth("SELECT User_ID, User_Name, Password FROM users WHERE User_Name = '" + username + "' AND Password = '" + password + "'");
         try {
             if (auth == true) {
-                SceneController.changeScene("/view/Index.fxml", "Scheduler", actionEvent);
+                SceneController.changeScene("/view/Index.fxml", "Scheduler", actionEvent, false);
             }
             else {
                 Popup.errorAlert("error", "login_error");

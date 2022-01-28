@@ -4,14 +4,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import main.Main;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.*;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static java.lang.Integer.parseInt;
-import static utilities.Print.print;
+
 
 /**
  * This class is a wrapper for SQL queries
@@ -57,7 +61,6 @@ public class DBInteraction {
                     else {
                         row.add(result.getString(i));
                     }
-
                 }
                 rowResults.add(row);
             }
@@ -66,6 +69,7 @@ public class DBInteraction {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        System.out.println(rowResults);
         return rowResults;
     }
 
@@ -96,7 +100,7 @@ public class DBInteraction {
      * @return whether user was successfully authenticated
      * @throws SQLException
      */
-    public static boolean auth(String string) throws SQLException {
+    public static boolean auth(String string) throws IOException {
         boolean toggle = false;
         try {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
@@ -106,10 +110,15 @@ public class DBInteraction {
                 Main.userID = Integer.valueOf(result.getString("User_ID"));
                 System.out.println("User \"" + Main.username + "\" has been successfully authenticated!");
                 toggle = true;
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        LocalTime timeTruncated = LocalTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS);
+        LocalDate localDate = LocalDate.now(ZoneOffset.UTC);
+
+        Audit.loginAudit(timeTruncated, localDate, toggle);
         return toggle;
     }
 }
