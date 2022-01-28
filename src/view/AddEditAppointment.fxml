@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane stylesheets="@../resources/bootstrap.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AddEditAppointment">
+    <children>
+      <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Group>
+               <children>
+                  <VBox>
+                     <children>
+                        <AnchorPane>
+                           <children>
+                                <Label fx:id="appointment_label" alignment="CENTER" contentDisplay="CENTER" text="Add Appointment" AnchorPane.topAnchor="0.0">
+                                    <font>
+                                        <Font size="46.0" />
+                                    </font>
+                                </Label>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane>
+                           <children>
+                              <HBox spacing="10.0">
+                                 <children>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Appointment ID" />
+                                          <TextField fx:id="appointment_id" disable="true" />
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                          <Label text="TItle" />
+                                          <TextField fx:id="appointment_title" />
+                                          <Label text="Date" />
+                                          <DatePicker fx:id="appointment_start" />
+                                          <Label text="Customer" />
+                                          <ComboBox fx:id="appointment_customer" prefWidth="176.0" />
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Location" />
+                                          <TextField fx:id="appointment_location" />
+                                          <Label text="End" />
+                                          <DatePicker fx:id="appointment_end" />
+                                          <Label text="Contact" />
+                                          <ComboBox fx:id="appointment_contact" prefWidth="176.0" />
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Description" />
+                                          <TextArea fx:id="appointment_description" maxHeight="125.0" maxWidth="315.0" />
+                                          <HBox alignment="TOP_RIGHT" spacing="10.0">
+                                             <VBox.margin>
+                                                <Insets top="5.0" />
+                                             </VBox.margin>
+                                          </HBox>
+                                          <ButtonBar prefHeight="40.0" prefWidth="200.0">
+                                            <buttons>
+                                                <Button fx:id="appointment_cancel" mnemonicParsing="false" onAction="#cancelAppointment" styleClass="danger" stylesheets="@../resources/bootstrap.css" text="Cancel" />
+                                                <Button fx:id="appointment_save" mnemonicParsing="false" onAction="#saveAppointment" styleClass="primary" text="Save" />
+                                            </buttons>
+                                          </ButtonBar>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </AnchorPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </VBox>
+               </children>
+               <StackPane.margin>
+                  <Insets />
+               </StackPane.margin>
+            </Group>
+         </children>
+      </StackPane>
+    </children>
+</AnchorPane>
