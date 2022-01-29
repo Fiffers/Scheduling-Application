@@ -16,7 +16,7 @@
                      <children>
                         <AnchorPane>
                            <children>
-                                <Label fx:id="appointment_label" alignment="CENTER" contentDisplay="CENTER" text="Add Appointment" AnchorPane.topAnchor="0.0">
+                                <Label fx:id="appointment_label" alignment="CENTER" contentDisplay="CENTER" stylesheets="@../resources/bootstrap.css" text="Add Appointment" AnchorPane.topAnchor="0.0">
                                     <font>
                                         <Font size="46.0" />
                                     </font>
@@ -31,26 +31,70 @@
                                        <children>
                                           <Label text="Appointment ID" />
                                           <TextField fx:id="appointment_id" disable="true" />
+                                          <Label text="Date" />
+                                          <DatePicker fx:id="appointment_date" styleClass="date-picker" />
                                        </children>
                                     </VBox>
-                                    <VBox>
+                                    <VBox maxWidth="176.0" prefWidth="176.0">
                                        <children>
                                           <Label text="TItle" />
                                           <TextField fx:id="appointment_title" />
-                                          <Label text="Date" />
-                                          <DatePicker fx:id="appointment_start" />
-                                          <Label text="Customer" />
-                                          <ComboBox fx:id="appointment_customer" prefWidth="176.0" />
+                                          <HBox>
+                                             <children>
+                                                <Label text="From" />
+                                                <AnchorPane>
+                                                   <children>
+                                                      <Label alignment="CENTER_RIGHT" prefWidth="80.0" text="To" textAlignment="CENTER" />
+                                                   </children>
+                                                </AnchorPane>
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="10.0">
+                                             <children>
+                                                <VBox>
+                                                   <children>
+                                                      <HBox>
+                                                         <children>
+                                                            <TextField fx:id="appointment_start_hours" />
+                                                            <Label text=":">
+                                                               <HBox.margin>
+                                                                  <Insets />
+                                                               </HBox.margin>
+                                                               <font>
+                                                                  <Font name="System Bold" size="17.0" />
+                                                               </font>
+                                                            </Label>
+                                                            <TextField fx:id="appointment_start_minutes" />
+                                                         </children>
+                                                      </HBox>
+                                                   </children>
+                                                </VBox>
+                                                <HBox>
+                                                   <children>
+                                                      <TextField fx:id="appointment_end_hours" />
+                                                      <Label text=":">
+                                                         <HBox.margin>
+                                                            <Insets />
+                                                         </HBox.margin>
+                                                         <font>
+                                                            <Font name="System Bold" size="17.0" />
+                                                         </font>
+                                                      </Label>
+                                                      <TextField fx:id="appointment_end_minutes" />
+                                                   </children>
+                                                </HBox>
+                                             </children>
+                                          </HBox>
                                        </children>
                                     </VBox>
                                     <VBox>
                                        <children>
                                           <Label text="Location" />
                                           <TextField fx:id="appointment_location" />
-                                          <Label text="End" />
-                                          <DatePicker fx:id="appointment_end" />
                                           <Label text="Contact" />
-                                          <ComboBox fx:id="appointment_contact" prefWidth="176.0" />
+                                          <ComboBox fx:id="appointment_contact" prefWidth="176.0" styleClass="default" stylesheets="@../resources/bootstrap.css" />
+                                          <Label text="Customer" />
+                                          <ComboBox fx:id="appointment_customer" prefWidth="176.0" styleClass="default" stylesheets="@../resources/bootstrap.css" />
                                        </children>
                                     </VBox>
                                     <VBox>

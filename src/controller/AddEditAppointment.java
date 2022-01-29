@@ -8,22 +8,25 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.io.IOException;
-import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import main.Main;
 import utilities.RemoveSquareBrackets;
 
 public class AddEditAppointment {
     @FXML private TextField appointment_id, appointment_title, appointment_location;
+    @FXML private TextField appointment_start_hours, appointment_start_minutes;
+    @FXML private TextField appointment_end_hours, appointment_end_minutes;
     @FXML private TextArea appointment_description;
-    @FXML private DatePicker appointment_start, appointment_end;
+    @FXML private DatePicker appointment_date;
     @FXML private ComboBox appointment_customer, appointment_contact;
     @FXML private Label appointment_label;
+    @FXML private ChoiceBox appointment_start_ampm, appointment_end_ampm;
 
     public void initialize() throws SQLException {
         final String[][] array = {null};
@@ -39,20 +42,28 @@ public class AddEditAppointment {
                 ResultSet result = ps.executeQuery();
                 while (result.next()) {
                     appointment_label.setText("Edit Appointment");
+
+                    appointment_id.setText(result.getString("Appointment_ID"));
+                    appointment_title.setText(result.getString("Title"));
+                    appointment_location.setText(result.getString("Location"));
+                    appointment_description.setText(result.getString("Description"));
+
+                    String startDate[] = result.getString("Start").split(" ");
+                    String endDate[] = result.getString("End").split(" ");
+                    appointment_date.setValue(LocalDate.parse(startDate[0]));
+
+                    String startTime[] = LocalTime.parse(startDate[1]).toString().split(":");
+                    String endTime[] = LocalTime.parse(endDate[1]).toString().split(":");
+
+                    appointment_start_hours.setText(startTime[0]);
+                    appointment_start_minutes.setText(startTime[1]);
+
+                    appointment_end_hours.setText(endTime[0]);
+                    appointment_end_minutes.setText(endTime[1]);
+
                     for (int i = 1; i <= result.getMetaData().getColumnCount(); i++) {
                         String columnName = result.getMetaData().getColumnName(i);
-                        if (columnName.equals("Appointment_ID")) {
-                            appointment_id.setText(result.getString(i));
-                        }
-                        if (columnName.equals("Title")) {
-                            appointment_title.setText(result.getString(i));
-                        }
-                        if (columnName.equals("Description")) {
-                            appointment_description.setText(result.getString(i));
-                        }
-                        if (columnName.equals("Location")) {
-                            appointment_location.setText(result.getString(i));
-                        }
+
                         if (columnName.equals("Customer_ID")) {
                             String customerName = String.valueOf(DBInteraction.query("SELECT customer_name FROM customers WHERE customer_id = '" + result.getString(i) + "'"));
                             customerName = RemoveSquareBrackets.go(customerName);
@@ -63,15 +74,6 @@ public class AddEditAppointment {
                             contactName = RemoveSquareBrackets.go(contactName);
                             appointment_contact.setValue(contactName);
                         }
-                        if (columnName.equals("Start")) {
-                            String startDate[] = result.getString(i).split(" ");
-                            appointment_start.setValue(LocalDate.parse(startDate[0]));
-                        }
-                        if (columnName.equals("End")) {
-                            String endDate[] = result.getString(i).split(" ");
-                            appointment_end.setValue(LocalDate.parse(endDate[0]));
-                        }
-
                     }
                 }
             } catch (SQLException e) {
@@ -80,8 +82,6 @@ public class AddEditAppointment {
                 Main.selectedAppointment = null;
             }
         }
-
-
 
         ObservableList customers = DBInteraction.query("SELECT customer_name FROM customers");
         ObservableList contacts = DBInteraction.query("SELECT contact_name FROM contacts");
