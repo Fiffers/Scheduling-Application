@@ -83,14 +83,6 @@ public class Index implements Initializable {
                     tableView.getColumns().addAll(column);
                     column.setVisible(false);
                 }
-//                if (Objects.equals(column.textProperty().getValue(), "Customer")) {
-//                    tableView.getColumns().addAll(column);
-//                    column.setVisible(false);
-//                }
-//                if (Objects.equals(column.textProperty().getValue(), "Contact")) {
-//                    tableView.getColumns().addAll(column);
-//                    column.setVisible(false);
-//                }
                 else {
                     tableView.getColumns().addAll(column);
                 }
@@ -109,16 +101,16 @@ public class Index implements Initializable {
         SceneController.changeScene("/view/AddEditAppointment.fxml", "Edit Appointment", event, true);
     }
     public void addCustomer(ActionEvent event) throws Exception {
-        SceneController.changeScene("/view/AddEditCustomer.fxml", "Edit Appointment", event, false);
+        SceneController.changeScene("/view/AddEditCustomer.fxml", "Add Customer", event, false);
     }
     public void editCustomer(ActionEvent event) throws Exception {
-        SceneController.changeScene("/view/AddEditCustomer.fxml", "Edit Appointment", event, true);
+        SceneController.changeScene("/view/AddEditCustomer.fxml", "Edit Customer", event, true);
     }
     public void addContact(ActionEvent event) throws Exception {
-        SceneController.changeScene("/view/AddEditContact.fxml", "Edit Appointment", event, false);
+        SceneController.changeScene("/view/AddEditContact.fxml", "Add Contact", event, false);
     }
     public void editContact(ActionEvent event) throws Exception {
-        SceneController.changeScene("/view/AddEditContact.fxml", "Edit Appointment", event, true);
+        SceneController.changeScene("/view/AddEditContact.fxml", "Edit Contact", event, true);
     }
 
     public void addUnderline(MouseEvent event) {

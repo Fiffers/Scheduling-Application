@@ -38,7 +38,8 @@ public class AddEditAppointment {
 
     public void initialize() throws SQLException {
         final String[][] array = {null};
-        if (Main.updateDatabase == true) {
+        if (Main.updateDatabase) {
+            appointment_label.setText("Edit Appointment");
             try {
 
                 Main.selectedAppointment.forEach((appointment) -> {
@@ -49,7 +50,7 @@ public class AddEditAppointment {
                 PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
                 ResultSet result = ps.executeQuery();
                 while (result.next()) {
-                    appointment_label.setText("Edit Appointment");
+
 
                     appointment_id.setText(result.getString("Appointment_ID"));
                     appointment_title.setText(result.getString("Title"));
