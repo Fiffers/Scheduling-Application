@@ -8,7 +8,7 @@
 
 <AnchorPane stylesheets="@../resources/bootstrap.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AddEditAppointment">
     <children>
-      <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <StackPane fx:id="appointment_pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <Group>
                <children>
@@ -32,10 +32,10 @@
                                           <Label text="Appointment ID" />
                                           <TextField fx:id="appointment_id" disable="true" />
                                           <Label text="Date" />
-                                          <DatePicker fx:id="appointment_date" styleClass="date-picker" />
+                                          <DatePicker fx:id="appointment_date" promptText="DD/MM/YYYY" styleClass="date-picker" />
                                        </children>
                                     </VBox>
-                                    <VBox maxWidth="176.0" prefWidth="176.0">
+                                    <VBox fx:id="vbox_2" maxWidth="176.0" prefWidth="176.0">
                                        <children>
                                           <Label text="TItle" />
                                           <TextField fx:id="appointment_title" />
@@ -55,7 +55,7 @@
                                                    <children>
                                                       <HBox>
                                                          <children>
-                                                            <TextField fx:id="appointment_start_hours" />
+                                                            <TextField fx:id="appointment_start_hours" promptText="HH" />
                                                             <Label text=":">
                                                                <HBox.margin>
                                                                   <Insets />
@@ -64,14 +64,14 @@
                                                                   <Font name="System Bold" size="17.0" />
                                                                </font>
                                                             </Label>
-                                                            <TextField fx:id="appointment_start_minutes" />
+                                                            <TextField fx:id="appointment_start_minutes" promptText="MM" />
                                                          </children>
                                                       </HBox>
                                                    </children>
                                                 </VBox>
                                                 <HBox>
                                                    <children>
-                                                      <TextField fx:id="appointment_end_hours" />
+                                                      <TextField fx:id="appointment_end_hours" promptText="HH" />
                                                       <Label text=":">
                                                          <HBox.margin>
                                                             <Insets />
@@ -80,7 +80,7 @@
                                                             <Font name="System Bold" size="17.0" />
                                                          </font>
                                                       </Label>
-                                                      <TextField fx:id="appointment_end_minutes" />
+                                                      <TextField fx:id="appointment_end_minutes" promptText="MM" />
                                                    </children>
                                                 </HBox>
                                              </children>

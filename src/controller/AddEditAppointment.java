@@ -6,6 +6,8 @@ import database.DBInteraction;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 
 import java.sql.PreparedStatement;
@@ -15,7 +17,11 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import main.Main;
+import utilities.InputValidator;
+import utilities.Popup;
 import utilities.RemoveSquareBrackets;
 
 public class AddEditAppointment {
@@ -27,6 +33,8 @@ public class AddEditAppointment {
     @FXML private ComboBox appointment_customer, appointment_contact;
     @FXML private Label appointment_label;
     @FXML private ChoiceBox appointment_start_ampm, appointment_end_ampm;
+    @FXML private StackPane appointment_pane;
+    @FXML private VBox vbox_2;
 
     public void initialize() throws SQLException {
         final String[][] array = {null};
@@ -51,6 +59,8 @@ public class AddEditAppointment {
                     String startDate[] = result.getString("Start").split(" ");
                     String endDate[] = result.getString("End").split(" ");
                     appointment_date.setValue(LocalDate.parse(startDate[0]));
+
+
 
                     String startTime[] = LocalTime.parse(startDate[1]).toString().split(":");
                     String endTime[] = LocalTime.parse(endDate[1]).toString().split(":");
@@ -107,11 +117,44 @@ public class AddEditAppointment {
         if (Main.updateDatabase) {
             int appointmentID = Integer.parseInt(appointment_id.getText());
             String appointmentLocation = appointment_location.getText();
-            DBInteraction.update("UPDATE appointments SET Location = '" + appointmentLocation + "' WHERE Appointment_ID = '" + appointmentID + "'");
-            SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
+
+            for (Node node: vbox_2.getChildren()) {
+                if (node instanceof TextField) {
+                    System.out.println(node);
+                }
+            }
+
+            if (InputValidator.textFieldFilled(appointment_title, "a title") &&
+                InputValidator.textFieldFilled(appointment_location, "a location") &&
+                InputValidator.textFieldFilled(appointment_start_hours, "start hours") &&
+                InputValidator.textFieldFilled(appointment_start_minutes, "start minutes") &&
+                InputValidator.textFieldFilled(appointment_end_hours, "end hours") &&
+                InputValidator.textFieldFilled(appointment_end_minutes, "end minutes")) {
+                System.out.println("Valid");
+            }
+//            if (inputValidator()) {
+//                DBInteraction.update("UPDATE appointments SET Location = '" + appointmentLocation + "' WHERE Appointment_ID = '" + appointmentID + "'");
+//                SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
+//            }
         }
         else {
 
         }
+    }
+
+    public boolean inputValidator() {
+        if (appointment_title.getText().trim().isEmpty()) {
+            Popup.errorAlert("Error", "Make sure you input a title!");
+            return false;
+        }
+        if (appointment_location.getText().trim().isEmpty()) {
+            Popup.errorAlert("Error", "Make sure you input a location!");
+            return false;
+        }
+        if (appointment_date.getEditor().getText().isEmpty()) {
+            Popup.errorAlert("Error", "Make sure you input a date!");
+            return false;
+        }
+        return true;
     }
 }

@@ -102,4 +102,11 @@ public class Popup {
             return false;
         }
     }
+
+    public static void informationAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert = buildAlert(title, message, alert);
+        alert = buildButtons(1, new String[]{"ok"}, alert);
+        alert.showAndWait();
+    }
 }

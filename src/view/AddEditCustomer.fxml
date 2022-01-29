@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane stylesheets="@../resources/bootstrap.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AddEditCustomer">
+    <children>
+      <StackPane fx:id="appointment_pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Group>
+               <children>
+                  <VBox>
+                     <children>
+                        <AnchorPane>
+                           <children>
+                                <Label fx:id="customer_label" alignment="CENTER" contentDisplay="CENTER" stylesheets="@../resources/bootstrap.css" text="Add Customer" AnchorPane.topAnchor="0.0">
+                                    <font>
+                                        <Font size="46.0" />
+                                    </font>
+                                </Label>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane>
+                           <children>
+                              <HBox spacing="10.0">
+                                 <children>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Customer ID" />
+                                          <TextField fx:id="customer_id" disable="true" />
+                                       </children>
+                                    </VBox>
+                                    <VBox fx:id="vbox_2" maxWidth="176.0" prefWidth="176.0">
+                                       <children>
+                                          <Label text="Name" />
+                                          <TextField fx:id="customer_name" />
+                                          <Label text="Address" />
+                                          <TextField fx:id="customer_address" />
+                                          <Label text="Postal Code" />
+                                          <TextField fx:id="customer_postal_code" />
+                                       </children>
+                                    </VBox>
+                                    <VBox>
+                                       <children>
+                                          <Label text="Phone" />
+                                          <TextField fx:id="customer_phone" />
+                                          <Label text="Division" />
+                                          <ComboBox fx:id="customer_division" prefWidth="176.0" styleClass="default" stylesheets="@../resources/bootstrap.css" />
+                                          <ButtonBar buttonMinWidth="60.0">
+                                             <buttons>
+                                                <Button fx:id="customer_cancel" mnemonicParsing="false" onAction="#cancelCustomer" styleClass="danger" stylesheets="@../resources/bootstrap.css" text="Cancel" />
+                                                <Button fx:id="customer_cancel" mnemonicParsing="false" onAction="#saveCustomer" styleClass="primary" text="Save" />
+                                             </buttons>
+                                             <VBox.margin>
+                                                <Insets right="20.0" top="17.0" />
+                                             </VBox.margin>
+                                          </ButtonBar>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </AnchorPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </VBox>
+               </children>
+               <StackPane.margin>
+                  <Insets />
+               </StackPane.margin>
+            </Group>
+         </children>
+      </StackPane>
+    </children>
+</AnchorPane>
