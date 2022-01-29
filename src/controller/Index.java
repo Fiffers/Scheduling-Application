@@ -31,14 +31,23 @@ public class Index implements Initializable {
     @FXML private TableView appointments_table, customers_table, contacts_table;
     @FXML private Button appointment_edit, customer_edit, contact_edit, appointment_delete, customer_delete, contact_delete;
 
+    String appointments_table_data = "SELECT Appointment_ID, Title, Description, Location, Type, Start, End, " +
+            "customers.Customer_Name, contacts.Contact_Name FROM appointments " +
+            "INNER JOIN customers on appointments.Customer_ID=customers.Customer_ID " +
+            "JOIN contacts on appointments.Contact_ID=contacts.Contact_ID";
+    String customers_table_data = "SELECT Customer_ID, Customer_Name, Address, Postal_Code, Phone, " +
+            "first_level_divisions.Division FROM customers " +
+            "INNER JOIN first_level_divisions on customers.Division_ID=first_level_divisions.Division_ID";
+    String contacts_table_data = "SELECT Contact_ID, Contact_Name,  Email FROM contacts";
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         signed_in_as.setText("Signed in as: " + Main.username);
 
         try {
-            tableViewInsertData(appointments_table, "SELECT Appointment_ID, Title, Description, Location, Type, Start, End, customers.Customer_Name, contacts.Contact_Name FROM appointments INNER JOIN customers on appointments.Customer_ID=customers.Customer_ID JOIN contacts on appointments.Contact_ID=contacts.Contact_ID");
-            tableViewInsertData(customers_table, "SELECT Customer_Name, Address, Postal_Code, Phone, Division_ID FROM customers");
-            tableViewInsertData(contacts_table, "SELECT Contact_Name, Email FROM contacts");
+            tableViewInsertData(appointments_table, appointments_table_data);
+            tableViewInsertData(customers_table, customers_table_data);
+            tableViewInsertData(contacts_table, contacts_table_data);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -68,10 +77,20 @@ public class Index implements Initializable {
                     }
                 });
                 /** Make sure the primary key is hidden in the tableview, but is still accessible */
-                if (Objects.equals(column.textProperty().getValue(), "Appointment")) {
+                if (Objects.equals(column.textProperty().getValue(), "Appointment") ||
+                    Objects.equals(column.textProperty().getValue(), "Customer") ||
+                    Objects.equals(column.textProperty().getValue(), "Contact")) {
                     tableView.getColumns().addAll(column);
                     column.setVisible(false);
                 }
+//                if (Objects.equals(column.textProperty().getValue(), "Customer")) {
+//                    tableView.getColumns().addAll(column);
+//                    column.setVisible(false);
+//                }
+//                if (Objects.equals(column.textProperty().getValue(), "Contact")) {
+//                    tableView.getColumns().addAll(column);
+//                    column.setVisible(false);
+//                }
                 else {
                     tableView.getColumns().addAll(column);
                 }
@@ -89,12 +108,18 @@ public class Index implements Initializable {
     public void editAppointment(ActionEvent event) throws Exception {
         SceneController.changeScene("/view/AddEditAppointment.fxml", "Edit Appointment", event, true);
     }
-
-    public void addCustomer(ActionEvent event) throws Exception {    }
-    public void editCustomer(ActionEvent event) throws Exception {    }
-
-    public void addContact(ActionEvent event) throws Exception {    }
-    public void editContact(ActionEvent event) throws Exception {    }
+    public void addCustomer(ActionEvent event) throws Exception {
+        SceneController.changeScene("/view/AddEditCustomer.fxml", "Edit Appointment", event, false);
+    }
+    public void editCustomer(ActionEvent event) throws Exception {
+        SceneController.changeScene("/view/AddEditCustomer.fxml", "Edit Appointment", event, true);
+    }
+    public void addContact(ActionEvent event) throws Exception {
+        SceneController.changeScene("/view/AddEditContact.fxml", "Edit Appointment", event, false);
+    }
+    public void editContact(ActionEvent event) throws Exception {
+        SceneController.changeScene("/view/AddEditContact.fxml", "Edit Appointment", event, true);
+    }
 
     public void addUnderline(MouseEvent event) {
         sign_out.setUnderline(true);
@@ -102,10 +127,23 @@ public class Index implements Initializable {
     public void removeUnderline(MouseEvent event) {
         sign_out.setUnderline(false);
     }
+
     public void selectAppointment(MouseEvent event) throws IOException {
         Main.selectedAppointment = appointments_table.getSelectionModel().getSelectedItems();
         appointment_edit.setDisable(false);
         appointment_delete.setDisable(false);
+    }
+
+    public void selectCustomer(MouseEvent event) throws IOException {
+        Main.selectedCustomer = customers_table.getSelectionModel().getSelectedItems();
+        customer_edit.setDisable(false);
+        customer_delete.setDisable(false);
+    }
+
+    public void selectContact(MouseEvent event) throws IOException {
+        Main.selectedContact = contacts_table.getSelectionModel().getSelectedItems();
+        contact_edit.setDisable(false);
+        contact_delete.setDisable(false);
     }
 
     public void deleteAppointment(Event event) throws SQLException, IOException {
@@ -119,8 +157,36 @@ public class Index implements Initializable {
             SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
         }
     }
-    public void deleteCustomer(Event event) {}
-    public void deleteContact(Event event) {}
+
+    public void deleteCustomer(Event event) throws SQLException, IOException {
+        /** Need to check to see if customer still has any appointments. If so, the appointments must be deleted first */
+        String selectedRow = Main.selectedCustomer.get(0).toString();
+        selectedRow = RemoveSquareBrackets.go(selectedRow);
+        String[] selectedRowArray = selectedRow.split(", ");
+        System.out.println(selectedRowArray[0]);
+        boolean result = Popup.confirmationAlert("Are you sure?", "Are you sure you'd like to delete this customer?");
+
+        if (result) {
+            DBInteraction.update("DELETE FROM customers WHERE Customer_ID = '" + selectedRowArray[0] + "'");
+            Popup.informationAlert("Information", "Customer " + selectedRowArray[1] + " has been deleted!");
+            SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
+        }
+    }
+
+    public void deleteContact(Event event) throws SQLException, IOException {
+        /** Need to check to see if customer still has any appointments. If so, the appointments must be deleted first */
+        String selectedRow = Main.selectedContact.get(0).toString();
+        selectedRow = RemoveSquareBrackets.go(selectedRow);
+        String[] selectedRowArray = selectedRow.split(", ");
+        System.out.println(selectedRowArray[0]);
+        boolean result = Popup.confirmationAlert("Are you sure?", "Are you sure you'd like to delete this contact?");
+
+        if (result) {
+            DBInteraction.update("DELETE FROM contacts WHERE Contact_ID = '" + selectedRowArray[0] + "'");
+            Popup.informationAlert("Information", "Contact " + selectedRowArray[1] + " has been deleted!");
+            SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
+        }
+    }
 
     public void signOut(Event event) throws IOException {
 //    Do nothing..?

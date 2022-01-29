@@ -3,15 +3,19 @@ package database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ResourceBundle;
 
 public class DBConnection {
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/client_schedule?connectionTimeZone=SERVER";
-    private static final String DB_USERNAME = "sqlUser";
-    private static final String DB_PASSWORD = "Passw0rd!";
+
+
 
     private static Connection conn = null;
 
     public static Connection startConnection() {
+        ResourceBundle env = ResourceBundle.getBundle("env");
+        String DB_URL = env.getString("DB_URL");
+        String DB_USERNAME = env.getString("DB_USERNAME");
+        String DB_PASSWORD = env.getString("DB_PASSWORD");
         try {
             conn = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
             System.out.println("Database connected");

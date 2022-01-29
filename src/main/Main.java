@@ -16,12 +16,19 @@ import utilities.Popup;
 import utilities.ResetDatabase;
 
 public class Main extends Application {
+    /** Just some global variables, nothing to see here =) */
     public static ObservableList selectedAppointment = null;
-    public static boolean updateDatabase = false;
+    public static ObservableList selectedCustomer    = null;
+    public static ObservableList selectedContact     = null;
+    public static boolean updateDatabase             = false;
     public static String username;
     public static Integer userID;
-    public static boolean franceToggle = false;
+
+    /** Debug booleans */
+    public static boolean franceToggle     = false;
     static boolean resetDatabaseToDefaults = true;
+
+
     /**
      * Creates stage, applies scene to it, and shows the stage.
      */
