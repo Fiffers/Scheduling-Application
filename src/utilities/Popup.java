@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Alert;
+import javafx.stage.Screen;
 import main.Main;
 
 import java.util.Optional;
