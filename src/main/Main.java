@@ -1,5 +1,6 @@
 package main;
 
+import controller.SceneController;
 import database.DBConnection;
 
 import javafx.application.Application;
@@ -17,20 +18,21 @@ import utilities.ResetDatabase;
 
 public class Main extends Application {
     /** Just some global variables, nothing to see here =) */
-    public static ObservableList selectedAppointment = null;
-    public static ObservableList selectedCustomer    = null;
-    public static ObservableList selectedContact     = null;
-    public static boolean updateDatabase             = false;
+    public static ObservableList selectedAppointment;
+    public static ObservableList selectedCustomer;
+    public static ObservableList selectedContact;
     public static String username;
     public static Integer userID;
+    public static boolean updateDatabase   = false;
 
     /** Debug booleans */
-    public static boolean franceToggle     = false;
+    static boolean franceToggle            = false;
     static boolean resetDatabaseToDefaults = true;
-
 
     /**
      * Creates stage, applies scene to it, and shows the stage.
+     * @param stage The stage for the application
+     * @throws Exception
      */
     @Override
     public void start(Stage stage) throws Exception {
@@ -43,6 +45,7 @@ public class Main extends Application {
         scene.getStylesheets().add("/resources/bootstrap.css");
         stage.setScene(scene);
         stage.show();
+        SceneController.centerStage(stage);
         root.requestFocus();
 
         if (resetDatabaseToDefaults == true) {
@@ -53,6 +56,10 @@ public class Main extends Application {
         }
     }
 
+    /**
+     * Gets localization stuff
+     * @return resource bundle
+     */
     public static ResourceBundle getResources() {
         Locale l;
         if (franceToggle) {
@@ -74,7 +81,7 @@ public class Main extends Application {
      */
     public static void main(String[] args) throws Exception {
         DBConnection.startConnection();
-        launch(args);
+        launch();
         DBConnection.closeConnection();
     }
 }

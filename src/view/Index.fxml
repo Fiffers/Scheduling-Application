@@ -17,26 +17,30 @@
                      <children>
                         <AnchorPane>
                            <children>
-                                <Label fx:id="LoginLabel" alignment="CENTER" prefHeight="68.0" prefWidth="800.0" text="Scheduler" textAlignment="CENTER" AnchorPane.topAnchor="10.0">
+                                <Label fx:id="LoginLabel" alignment="CENTER" prefHeight="68.0" prefWidth="1000.0" text="Scheduler" textAlignment="CENTER" AnchorPane.topAnchor="10.0">
                                     <font>
                                         <Font size="46.0" />
                                     </font>
                                 </Label>
                               <Label fx:id="signed_in_as" text="Signed in as: &lt;null&gt;" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="5.0" />
-                              <Label fx:id="sign_out" onMouseClicked="#signOut" onMouseEntered="#addUnderline" onMouseExited="#removeUnderline" text="Sign Out" textFill="#0066cc" visible="false" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
+                              <Label fx:id="sign_out" onMouseClicked="#signOut" onMouseEntered="#addUnderline" onMouseExited="#removeUnderline" text="Sign Out" textFill="#0066cc" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
                                  <cursor>
                                     <Cursor fx:constant="HAND" />
                                  </cursor></Label>
                            </children>
                         </AnchorPane>
-                        <AnchorPane>
+                        <AnchorPane fx:id="appointments_container">
                            <children>
+                              <HBox prefHeight="100.0" prefWidth="200.0" />
                               <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                                  <children>
-                                    <Label text="Upcoming Appointments">
+                                    <Label alignment="CENTER" text="Appointments" textAlignment="CENTER">
                                        <font>
                                           <Font size="16.0" />
                                        </font>
+                                       <padding>
+                                          <Insets bottom="10.0" top="10.0" />
+                                       </padding>
                                     </Label>
                                     <TableView fx:id="appointments_table" maxHeight="100.0" minHeight="100.0" onMouseClicked="#selectAppointment" styleClass="column-header">
                                        <columnResizePolicy>
@@ -47,7 +51,7 @@
                                        <children>
                                           <ButtonBar buttonMinWidth="50.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="5.0">
                                             <buttons>
-                                                <Button fx:id="appointment_delete" disable="true" mnemonicParsing="false" onAction="#deleteAppointment" prefHeight="59.0" styleClass="danger" text="Delete" textAlignment="CENTER">
+                                                <Button fx:id="appointment_delete" disable="true" mnemonicParsing="false" onAction="#deleteAppointment" prefHeight="59.0" styleClass="danger" text="Cancel" textAlignment="CENTER">
                                                    <font>
                                                       <Font size="96.0" />
                                                    </font></Button>
@@ -65,7 +69,7 @@
                               </VBox>
                            </children>
                         </AnchorPane>
-                        <AnchorPane prefHeight="174.0" prefWidth="800.0">
+                        <AnchorPane fx:id="customers_container">
                            <children>
                               <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                                  <children>
@@ -98,7 +102,7 @@
                               </VBox>
                            </children>
                         </AnchorPane>
-                        <AnchorPane prefHeight="174.0" prefWidth="800.0">
+                        <AnchorPane fx:id="contacts_container">
                            <children>
                               <VBox AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                                  <children>

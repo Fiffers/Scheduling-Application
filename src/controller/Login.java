@@ -49,7 +49,7 @@ public class Login implements Initializable {
      * @param actionEvent The button press action
      * @throws Exception
      */
-    public void onLoginButtonPressed(ActionEvent actionEvent) throws SQLException, IOException {
+    public void onLoginButtonPressed(ActionEvent actionEvent) throws IOException {
         String username = login_username.getText().toLowerCase();
         String password = login_password.getText();
         boolean auth = auth("SELECT User_ID, User_Name, Password FROM users WHERE User_Name = '" + username + "' AND Password = '" + password + "'");
