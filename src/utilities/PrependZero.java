@@ -8,7 +8,6 @@ public class PrependZero {
      * @return The string with 2 digits
      */
     public static String twoDigits(int number) {
-        String string = String.format("%02d", number);
-        return string;
+        return String.format("%02d", number);
     }
 }

@@ -10,22 +10,16 @@ import main.Main;
 import model.Contact;
 import utilities.InputValidator;
 
-import java.sql.SQLException;
-
 public class AddEditContact {
 
     @FXML private TextField contact_id, contact_name, contact_email;
     @FXML private Label contact_label;
 
-    /**
-     * Checks if user wants to edit or add a contact, and goes from there
-     * @throws SQLException
-     */
     public void initialize() {
 
-        /**
-         * If editing a contact that already exists, get the data for that
-         * contact and insert the data into the correct scene elements
+        /*
+          If editing a contact that already exists, get the data for that
+          contact and insert the data into the correct scene elements
          */
         try {
             if (Main.updateDatabase) {
@@ -42,7 +36,6 @@ public class AddEditContact {
     /**
      * Cancel add/edit of a contact and return to index
      * @param event The event that triggered this method
-     * @throws Exception
      */
     public void cancelContact(ActionEvent event) throws Exception {
         SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
@@ -51,23 +44,22 @@ public class AddEditContact {
     /**
      * Validates and saves data to the SQL database
      * @param event The event that triggered this method
-     * @throws Exception
      */
     public void saveContact(ActionEvent event) throws Exception {
         if (InputValidator.textFieldFilled(contact_name, "a name") &&
             InputValidator.textFieldFilled(contact_email, "an email") &&
             InputValidator.isEmail(contact_email.getText())) {
 
-            /** Get strings from input fields */
+            /* Get strings from input fields */
             Contact contact = new Contact();
             contact.setContact_id(Integer.parseInt(contact_id.getText()));
             contact.setContact_name(contact_name.getText());
             contact.setEmail(contact_email.getText());
 
-            /**
-             * Check if we want to update the database
-             * If true, update a row that already exists
-             * If not, insert a new row into the SQL database
+            /*
+              Check if we want to update the database
+              If true, update a row that already exists
+              If not, insert a new row into the SQL database
              */
             String query;
             if (Main.updateDatabase) {

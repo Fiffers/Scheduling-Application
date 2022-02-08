@@ -30,8 +30,7 @@ public class TimeZoneConverter {
     }
 
     public static Timestamp toSQL(ZonedDateTime time) {
-        Timestamp timestamp = Timestamp.valueOf(time.toLocalDateTime());
-        return timestamp;
+        return Timestamp.valueOf(time.toLocalDateTime());
     }
 
     public static String makeReadable(ZonedDateTime time) {
@@ -42,7 +41,6 @@ public class TimeZoneConverter {
         String hour   = PrependZero.twoDigits(time.getHour());
         String minute = PrependZero.twoDigits(time.getMinute());
 
-        String string = year + "-" + month + "-" + day + " " + hour + ":" + minute;
-        return string;
+        return year + "-" + month + "-" + day + " " + hour + ":" + minute;
     }
 }

@@ -14,9 +14,8 @@ public class Audit {
      * @param time The time of the login attempt in UTC
      * @param date The date of the login attempt in UTC
      * @param success Whether or not the login attempt was a success
-     * @throws IOException
      */
-    public static void loginAudit( LocalTime time, LocalDate date, boolean success) throws IOException {
+    public static void loginAudit( LocalTime time, LocalDate date, boolean success) {
         Path path = Paths.get("login_activity.txt");
 
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {

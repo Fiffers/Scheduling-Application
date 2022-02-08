@@ -16,10 +16,10 @@ import java.util.Scanner;
 public class InputValidator {
 
     /**
-     * Checks if the user actually filled in a textfield with text
-     * @param textField The textfield to check
+     * Checks if the user actually filled in a text-field with text
+     * @param textField The text-field to check
      * @param string The string provided by the user
-     * @return true if the textfield is not empty
+     * @return true if the text-field is not empty
      */
     public static boolean textFieldFilled(TextField textField, String string) {
         if (textField.getText().isEmpty()) {
@@ -38,8 +38,8 @@ public class InputValidator {
     }
 
     /**
-     * Checks if the user actually selected an option in a combobox
-     * @param comboBox The combobox to check
+     * Checks if the user actually selected an option in a combo-box
+     * @param comboBox The combo-box to check
      * @param string The string provided by the user
      * @return true if an option is selected
      */
@@ -63,20 +63,19 @@ public class InputValidator {
      * Checks provided email string for correctness
      * @param string The string to be checked
      * @return true if string is valid
-     * @throws FileNotFoundException
      */
     public static boolean isEmail(String string) throws FileNotFoundException {
         if (string.contains("@") && string.contains(".")) {
 
-            /** Split the email address up into parts */
+            /* Split the email address up into parts */
             String domain = string.substring(string.indexOf("@") + 1);
             domain = domain.substring(0, domain.indexOf("."));
             String topLevelDomain = string.substring(string.indexOf(".") + 1);
             String userName = string.substring(0, string.indexOf("@"));
 
-            /**
-             *  Check if any of the substrings are empty, and validate TLD
-             *  Note: A TLD is the text at the end of a URL. (.com, .org, etc.)
+            /*
+               Check if any of the substrings are empty, and validate TLD
+               Note: A TLD is the text at the end of a URL. (.com, .org, etc.)
              */
             if (domain.isEmpty() || topLevelDomain.isEmpty() || userName.isEmpty() || !isValidTLD(topLevelDomain)) {
                 Popup.errorAlert("Error", "Make sure you input the email correctly!");
@@ -88,13 +87,13 @@ public class InputValidator {
         return false;
     }
 
-    public static boolean isPhoneNumber(String string) throws FileNotFoundException {
+    public static boolean isPhoneNumber(String string) {
         string = string.replaceAll("-", "");
         try {
             Long.parseLong(string);
             return true;
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             Popup.errorAlert("Error", "Make sure you input the phone number correctly!");
             return false;
         }
@@ -103,13 +102,13 @@ public class InputValidator {
     public static boolean isValidHour(String string) {
         try {
             Integer.parseInt(string);
-            if (Integer.valueOf(string) < 1 || Integer.valueOf(string) > 23) {
+            if (Integer.parseInt(string) < 1 || Integer.parseInt(string) > 23) {
                 Popup.errorAlert("Error", "Double check the hours you entered!");
                 return false;
             }
             return true;
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             Popup.errorAlert("Error", "Double check the hours you entered!");
             return false;
         }
@@ -117,14 +116,14 @@ public class InputValidator {
     public static boolean isValidMinute(String string) {
         try {
             Integer.parseInt(string);
-            if (Integer.valueOf(string) < 0 || Integer.valueOf(string) > 59) {
+            if (Integer.parseInt(string) < 0 || Integer.parseInt(string) > 59) {
                 Popup.errorAlert("Error", "Double check the minutes you entered!");
                 return false;
             }
             return true;
         } catch (NumberFormatException e) {
-            e.printStackTrace();
-            Popup.errorAlert("Error", "Double check the minutes you entered!");
+//            e.printStackTrace();
+            Popup.errorAlert("Error", "Double check the minutes you entered!" + e);
             return false;
         }
     }
@@ -133,10 +132,9 @@ public class InputValidator {
      * Checks email Top Level Domain (TLD) against text file with list of possible TLDs
      * @param string The string to be compared
      * @return true if match was found
-     * @throws FileNotFoundException
      */
     public static boolean isValidTLD(String string) throws FileNotFoundException {
-        File file = new File("src/resources/tlds-alpha-by-domain.txt");
+        @SuppressWarnings("SpellCheckingInspection") File file = new File("src/resources/tlds-alpha-by-domain.txt");
         Scanner input = new Scanner(file);
         while (input.hasNextLine()) {
             if (input.nextLine().equalsIgnoreCase(string)) {
@@ -152,7 +150,7 @@ public class InputValidator {
      * @return true if the provided time is between normal business hours
      */
     public static boolean isBusinessHours(ZonedDateTime zdt) {
-        /** Business hours are between 8 AM and 10 PM EST, including weekends. */
+        /* Business hours are between 8 AM and 10 PM EST, including weekends. */
         ZonedDateTime converted = TimeZoneConverter.toZone(zdt, ZoneId.of("America/New_York"));
         ZonedDateTime openTime = TimeZoneConverter.stringToZonedDateTime("2000-01-01 08:00:00", ZoneId.of("America/New_York"));
         ZonedDateTime closeTime = TimeZoneConverter.stringToZonedDateTime("2000-01-01 22:00:00", ZoneId.of("America/New_York"));

@@ -11,7 +11,7 @@ public class DBConnection {
 
     private static Connection conn = null;
 
-    public static Connection startConnection() {
+    public static void startConnection() {
         ResourceBundle env = ResourceBundle.getBundle("env");
         String DB_URL = env.getString("DB_URL");
         String DB_USERNAME = env.getString("DB_USERNAME");
@@ -22,7 +22,6 @@ public class DBConnection {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return conn;
     }
 
     public static Connection getConnection() {

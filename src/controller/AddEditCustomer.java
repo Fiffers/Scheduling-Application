@@ -1,6 +1,5 @@
 package controller;
 
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -9,13 +8,13 @@ import javafx.scene.control.TextField;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import main.Main;
 
 import database.DBConnection;
 import database.DBInteraction;
 
+import model.Customer;
 import utilities.InputValidator;
 
 
@@ -23,7 +22,7 @@ public class AddEditCustomer {
 
     @FXML private TextField customer_id, customer_name, customer_address, customer_postal_code, customer_phone;
     @FXML private Label customer_label;
-    @FXML private ComboBox<Object> customer_country, customer_division;
+    @FXML private ComboBox customer_country, customer_division;
 
     /**
      * Checks if user wants to edit or add a customer, and goes from there
@@ -112,15 +111,18 @@ public class AddEditCustomer {
         if (textFieldsFilled && comboBoxesFilled && isValidPhoneNum) {
 
             /** Get strings from input fields */
-            String customerID = customer_id.getText();
-            String customerName = customer_name.getText();
-            String customerAddress  = customer_address.getText();
-            String customerPostalCode = customer_postal_code.getText();
-            String customerPhone = customer_phone.getText();
-            String customerDivision = customer_division.getValue().toString();
+            Customer customer = new Customer();
+            if (!customer_id.getText().equals("")) {
+                customer.setCustomer_id(Integer.parseInt(customer_id.getText()));
+            }
+            customer.setCustomer_name(customer_name.getText());
+            customer.setAddress(customer_address.getText());
+            customer.setPostal_code(customer_postal_code.getText());
+            customer.setPhone(customer_phone.getText());
+            customer.setDivision(customer_division.getValue().toString());
 
             /** Convert division name to its respective id */
-            String getDivisionIDQuery = "SELECT division_id from first_level_divisions WHERE Division = '" + customerDivision + "'";
+            String getDivisionIDQuery = "SELECT division_id from first_level_divisions WHERE Division = '" + customer.getDivision() + "'";
             String customerDivisionID = String.valueOf(DBInteraction.simpleQuery(getDivisionIDQuery));
 
             /**
@@ -129,16 +131,16 @@ public class AddEditCustomer {
              * If not, insert a new row into the SQL database
              */
             String query;
-            if (customerID.equals("")) {
-                query = "INSERT INTO customers (Customer_Name, Address, Postal_Code, Phone, Division_ID) " +
-                        "VALUES ('" + customerName + "', '" + customerAddress + "', '" + customerPostalCode + "', '" +
-                        customerPhone + "', '" + Integer.valueOf(customerDivisionID) + "')";
+            if (Main.updateDatabase) {
+                query = "UPDATE customers SET Customer_Name = '" + customer.getCustomer_name() + "', Address = '" + customer.getAddress() + "'," +
+                        " Postal_Code = '" + customer.getPostal_code() + "', Phone = '" + customer.getPhone() + "', Division_ID = '" +
+                        Integer.valueOf(customerDivisionID) + "' " +
+                        "WHERE Customer_ID = '" + customer.getCustomer_id() + "'";
             }
             else {
-                query = "UPDATE customers SET Customer_Name = '" + customerName + "', Address = '" + customerAddress + "'," +
-                        " Postal_Code = '" + customerPostalCode + "', Phone = '" + customerPhone + "', Division_ID = '" +
-                        Integer.valueOf(customerDivisionID) + "' " +
-                        "WHERE Customer_ID = '" + customerID + "'";
+                query = "INSERT INTO customers (Customer_Name, Address, Postal_Code, Phone, Division_ID) " +
+                        "VALUES ('" + customer.getCustomer_name() + "', '" + customer.getAddress() + "', '" + customer.getPostal_code() + "', '" +
+                        customer.getPhone() + "', '" + Integer.valueOf(customerDivisionID) + "')";
             }
             DBInteraction.update(query);
 

@@ -63,7 +63,7 @@ public class Customer {
         return division;
     }
 
-    public void setDivision_id(String division) {
+    public void setDivision(String division) {
         this.division = division;
     }
 }

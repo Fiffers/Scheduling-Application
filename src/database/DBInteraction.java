@@ -3,7 +3,6 @@ package database;
 import javafx.scene.control.ComboBox;
 import main.Main;
 
-import java.io.IOException;
 import java.sql.*;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -15,7 +14,6 @@ public class DBInteraction {
     /**
      * Updates the database with DELETE, INSERT, or UPDATE statements
      * @param string The SQL query to be executed
-     * @throws SQLException
      */
     public static void update(String string) throws SQLException {
         try {
@@ -27,7 +25,7 @@ public class DBInteraction {
     }
 
     /**
-     * Gets possible rows for combobox and inserts them into it
+     * Gets possible rows for combo-box and inserts them into it
      * @param string The SQL Query
      * @param comboBox The comboBox to insert rows into
      */
@@ -37,9 +35,7 @@ public class DBInteraction {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
             ResultSet result = ps.executeQuery();
 
-            while (result.next()) {
-                comboBox.getItems().add(result.getString(1));
-            }
+            while (result.next()) comboBox.getItems().add(result.getString(1));
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,9 +47,8 @@ public class DBInteraction {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
             ResultSet result = ps.executeQuery();
 
-            while (result.next()) {
-                comboBox.setValue(result.getString(1));
-            }
+            while (result.next()) comboBox.setValue(result.getString(1));
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -64,27 +59,24 @@ public class DBInteraction {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
             ResultSet result = ps.executeQuery();
 
-            while (result.next()) {
-                return result.getString(1);
-            }
+            if (result.next()) return result.getString(1);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return string;
     }
 
     /**
      * Authenticates the user
      * @param string The SQL query to be executed
      * @return whether user was successfully authenticated
-     * @throws SQLException
      */
-    public static boolean auth(String string) throws IOException {
+    public static boolean auth(String string) {
         boolean toggle = false;
         try {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
             ResultSet result = ps.executeQuery();
-            if (result.next() == true) {
+            if (result.next()) {
                 Main.username = result.getString("User_Name");
                 Main.userID = Integer.valueOf(result.getString("User_ID"));
                 System.out.println("User \"" + Main.username + "\" has been successfully authenticated!");

@@ -1,9 +1,6 @@
 package controller;
 
-import database.DBConnection;
-
 import database.DBInteraction;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -13,9 +10,8 @@ import java.time.*;
 
 
 import main.Main;
+import model.Appointment;
 import utilities.*;
-
-import javax.swing.*;
 
 public class AddEditAppointment {
     @FXML private TextField appointment_id, appointment_title, appointment_location;
@@ -26,20 +22,20 @@ public class AddEditAppointment {
     @FXML private ComboBox appointment_user, appointment_customer, appointment_contact;
     @FXML private Label appointment_label;
 
-    public void initialize() throws SQLException {
+    public void initialize() {
 
         if (Main.updateDatabase) {
             appointment_label.setText("Edit Appointment");
             try {
 
-                /** Set text for TextFields */
+                /* Set text for TextFields */
                 appointment_id.setText(String.valueOf(Main.selectedAppointment.getAppointment_id()));
                 appointment_title.setText(Main.selectedAppointment.getTitle());
                 appointment_location.setText(Main.selectedAppointment.getLocation());
                 appointment_description.setText(Main.selectedAppointment.getDescription());
                 appointment_type.setText(Main.selectedAppointment.getType());
 
-                /** Display local time */
+                /* Display local time */
                 ZonedDateTime startDateTimeLocal = TimeZoneConverter.stringToZonedDateTime(Main.selectedAppointment.getStartUTC(), ZoneId.of("UTC"));
                 ZonedDateTime endDateTimeLocal   = TimeZoneConverter.stringToZonedDateTime(Main.selectedAppointment.getEndUTC(), ZoneId.of("UTC"));
 
@@ -54,22 +50,20 @@ public class AddEditAppointment {
                 appointment_end_hours.setText(PrependZero.twoDigits(endDateTimeLocal.getHour()));
                 appointment_end_minutes.setText(PrependZero.twoDigits(endDateTimeLocal.getMinute()));
 
-                /** Set value in ComboBoxes */
+                /* Set value in ComboBoxes */
                 appointment_user.setValue(Main.selectedAppointment.getUser_name());
                 appointment_customer.setValue(Main.selectedAppointment.getCustomer_name());
                 appointment_contact.setValue(Main.selectedAppointment.getContact_name());
-
-                /** Get possible entries for each ComboBox, format and insert into respective ComboBox */
-                DBInteraction.getComboBoxOptions("SELECT customer_name FROM customers", appointment_customer);
-                DBInteraction.getComboBoxOptions("SELECT contact_name FROM contacts", appointment_contact);
-                DBInteraction.getComboBoxOptions("SELECT user_name FROM users", appointment_user);
-
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
+        /* Get possible entries for each ComboBox, format and insert into respective ComboBox */
+        DBInteraction.getComboBoxOptions("SELECT customer_name FROM customers", appointment_customer);
+        DBInteraction.getComboBoxOptions("SELECT contact_name FROM contacts", appointment_contact);
+        DBInteraction.getComboBoxOptions("SELECT user_name FROM users", appointment_user);
 
     }
 
@@ -122,38 +116,43 @@ public class AddEditAppointment {
 
             boolean inputValid = textFieldsFilled && comboBoxesFilled && datePickerFilled && textAreaFilled && businessHours;
 
-            String id          = appointment_id.getText();
-            String title       = appointment_title.getText();
-            String description = appointment_description.getText();
-            String location    = appointment_location.getText();
-            String type        = appointment_type.getText();
-            String user        = appointment_user.getValue().toString();
-            String customer    = appointment_customer.getValue().toString();
-            String contact     = appointment_contact.getValue().toString();
+            Appointment appointment = new Appointment();
+            if (inputValid){
+                if (!appointment_id.getText().equals("")) {
+                    appointment.setAppointment_id(Integer.parseInt(appointment_id.getText()));
+                }
+                appointment.setTitle(appointment_title.getText());
+                appointment.setDescription(appointment_description.getText());
+                appointment.setLocation(appointment_location.getText());
+                appointment.setType(appointment_type.getText());
+                appointment.setUser_name(appointment_user.getValue().toString());
+                appointment.setCustomer_name(appointment_customer.getValue().toString());
+                appointment.setContact_name(appointment_contact.getValue().toString());
+                appointment.setCustomer_id(Integer.parseInt(DBInteraction.simpleQuery("SELECT Customer_ID FROM customers WHERE Customer_Name = '" + appointment.getCustomer_name() + "'")));
+                appointment.setContact_id(Integer.parseInt(DBInteraction.simpleQuery("SELECT Contact_ID FROM contacts WHERE Contact_Name = '" + appointment.getContact_name() + "'")));
+                appointment.setUser_id(Integer.parseInt(DBInteraction.simpleQuery("SELECT User_ID FROM users WHERE User_Name = '" + appointment.getUser_name() + "'")));
 
-            customer = String.valueOf(DBInteraction.simpleQuery("SELECT Customer_ID FROM customers WHERE Customer_Name = '" + customer + "'"));
-            contact  = String.valueOf(DBInteraction.simpleQuery("SELECT Contact_ID FROM contacts WHERE Contact_Name = '" + contact + "'"));
-            user     = String.valueOf(DBInteraction.simpleQuery("SELECT User_ID FROM users WHERE User_Name = '" + user + "'"));
+                String query;
+                if (Main.updateDatabase) {
+                    query = "UPDATE appointments SET Title = '" + appointment.getTitle() + "', Description = '" + appointment.getDescription() + "', " +
+                            "Location = '" + appointment.getLocation() + "', Type = '" + appointment.getType() + "', Start = '" + startTime + "', End = '" + endTime + "', " +
+                            "Last_Update = '" + now + "', Last_Updated_By = '" + Main.username + "', Customer_ID = '" + appointment.getCustomer_id() + "', " +
+                            "User_ID = '" + appointment.getUser_id() + "', Contact_ID = '" + appointment.getContact_id() + "'" +
+                            "WHERE Appointment_ID = '" + appointment.getAppointment_id() + "'";
+                }
+                else {
+                    query = "INSERT INTO appointments (Title, Description, Location, Type, Start, End, Create_Date, Created_By, Last_Update, Last_Updated_By, Customer_ID, User_ID, Contact_ID) " +
+                            "VALUES ('" + appointment.getTitle() + "', '" + appointment.getDescription() + "', '" + appointment.getLocation() + "', '" + appointment.getType() + "', '" +
+                            startTime + "', '" + endTime + "', '" + now + "', '" + Main.username + "', '" + now
+                            + "', '" + Main.username + "', '" + appointment.getCustomer_id() + "', '" + appointment.getUser_id()  +
+                            "', '" + appointment.getContact_id() + "')";
 
-            String query;
-            if (id.equals("") && inputValid) {
-                query = "INSERT INTO appointments (Title, Description, Location, Type, Start, End, Create_Date, Created_By, Last_Update, Last_Updated_By, Customer_ID, User_ID, Contact_ID) " +
-                        "VALUES ('" + title + "', '" + description + "', '" + location + "', '" + type + "', '" +
-                        startTime + "', '" + endTime + "', '" + now + "', '" + Main.username + "', '" + now
-                        + "', '" + Main.username + "', '" + customer + "', '" + user  +
-                        "', '" + contact + "')";
+                }
                 DBInteraction.update(query);
                 SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
             }
-            else if (inputValid) {
-                query = "UPDATE appointments SET Title = '" + title + "', Description = '" + description + "', " +
-                        "Location = '" + location + "', Type = '" + type + "', Start = '" + startTime + "', End = '" + endTime + "', " +
-                        "Last_Update = '" + now + "', Last_Updated_By = '" + Main.username + "', Customer_ID = '" + customer + "', " +
-                        "User_ID = '" + user + "', Contact_ID = '" + contact + "'" +
-                        "WHERE Appointment_ID = '" + id + "'";
-                DBInteraction.update(query);
-                SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
-            }
+
+
         }
     }
 }

@@ -97,15 +97,15 @@ public class Index implements Initializable {
                 appointment.setStartUTC(result.getString("Start"));
                 appointment.setEndUTC(result.getString("End"));
 
-                /** Convert string to ZonedDateTime in UTC */
+                /* Convert string to ZonedDateTime in UTC */
                 ZonedDateTime startZDT = TimeZoneConverter.stringToZonedDateTime(result.getString("Start"), ZoneId.of("UTC"));
                 ZonedDateTime endZDT   = TimeZoneConverter.stringToZonedDateTime(result.getString("End"), ZoneId.of("UTC"));
 
-                /** Convert ZDT to local time zone */
+                /* Convert ZDT to local time zone */
                 startZDT = TimeZoneConverter.toZone(startZDT, ZoneId.systemDefault());
                 endZDT   = TimeZoneConverter.toZone(endZDT, ZoneId.systemDefault());
 
-                /** Format it into a user-friendly string for easier readability */
+                /* Format it into a user-friendly string for easier readability */
                 String start = TimeZoneConverter.makeReadable(startZDT);
                 String end   = TimeZoneConverter.makeReadable(endZDT);
 
@@ -140,7 +140,7 @@ public class Index implements Initializable {
                 customer.setAddress(result.getString("Address"));
                 customer.setPostal_code(result.getString("Postal_Code"));
                 customer.setPhone(result.getString("Phone"));
-                customer.setDivision_id(result.getString("Division"));
+                customer.setDivision(result.getString("Division"));
 
                 customerList.setAll(customer);
 
@@ -209,7 +209,7 @@ public class Index implements Initializable {
         SceneController.changeScene("/view/AddEditContact.fxml", "Edit Contact", event, true);
     }
 
-    /** Make signout link look like a normal hyperlink */
+    /** Make sign out link look like a normal hyperlink */
     public void addUnderline() {
         sign_out.setUnderline(true);
     }
@@ -284,7 +284,7 @@ public class Index implements Initializable {
     public void signOut(Event event) throws IOException {
         SceneController.changeScene("/view/Login.fxml", "Login", event, false);
 
-        /** Empty global variables */
+        /* Empty global variables */
         Main.selectedAppointment = null;
         Main.selectedCustomer    = null;
         Main.selectedContact     = null;

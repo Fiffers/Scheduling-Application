@@ -4,12 +4,12 @@ import controller.SceneController;
 import database.DBConnection;
 
 import javafx.application.Application;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Locale;
 
@@ -20,7 +20,7 @@ import utilities.Popup;
 import utilities.ResetDatabase;
 
 public class Main extends Application {
-    /** Just some global variables, nothing to see here =) */
+    /* Some globals */
     public static Appointment selectedAppointment;
     public static Customer selectedCustomer;
     public static Contact selectedContact;
@@ -28,20 +28,19 @@ public class Main extends Application {
     public static Integer userID;
     public static boolean updateDatabase   = false;
 
-    /** Debug booleans */
+    /* Debug booleans */
     static boolean franceToggle            = false;
     static boolean resetDatabaseToDefaults = true;
 
     /**
      * Creates stage, applies scene to it, and shows the stage.
      * @param stage The stage for the application
-     * @throws Exception
      */
     @Override
     public void start(Stage stage) throws Exception {
 
         ResourceBundle resources = getResources();
-        Parent root = FXMLLoader.load(getClass().getResource("/view/Login.fxml"), resources);
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/Login.fxml")), resources);
 
         stage.setTitle(resources.getString("login"));
         Scene scene = new Scene(root);
@@ -51,7 +50,7 @@ public class Main extends Application {
         SceneController.centerStage(stage);
         root.requestFocus();
 
-        if (resetDatabaseToDefaults == true) {
+        if (resetDatabaseToDefaults) {
             boolean result = Popup.confirmationAlert("database_reset", "reset_confirm");
             if (result) {
                 ResetDatabase.toDefaults();
@@ -74,15 +73,14 @@ public class Main extends Application {
             l = Locale.getDefault();
         }
 
-        ResourceBundle resources = ResourceBundle.getBundle("Localization", l);
-        return resources;
+        return ResourceBundle.getBundle("Localization", l);
     }
 
     /**
      * Main function where the program begins.
      * @param args Unused
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         DBConnection.startConnection();
         launch();
         DBConnection.closeConnection();
