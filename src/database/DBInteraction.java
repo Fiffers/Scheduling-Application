@@ -1,15 +1,10 @@
 package database;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
 import javafx.scene.control.ComboBox;
 import main.Main;
-import utilities.TimeZoneConverter;
 
 import java.io.IOException;
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 
@@ -23,12 +18,9 @@ public class DBInteraction {
      * @throws SQLException
      */
     public static void update(String string) throws SQLException {
-        String splitString[] = string.split(" ", 2);
         try {
             Statement statement = DBConnection.getConnection().createStatement();
-            if (splitString[0].equals("DELETE") || splitString[0].equals("INSERT") || splitString[0].equals("UPDATE")) {
-                statement.executeUpdate(string);
-            }
+            statement.executeUpdate(string);
         } catch (SQLException e) {
             throw new SQLException("Cannot connect to the database!", e);
         }
@@ -79,53 +71,6 @@ public class DBInteraction {
             e.printStackTrace();
         }
         return null;
-    }
-
-    /**
-     * Performs a SELECT query on the database
-     * @param string The SQL query to be executed
-     * @return The result of the SQL query
-     */
-    public static ObservableList qury(String string) {
-        ObservableList rowResults = FXCollections.observableArrayList();
-        try {
-            PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
-            ResultSet result = ps.executeQuery();
-
-            while (result.next()) {
-                ObservableList row = FXCollections.observableArrayList();
-                for (int i = 1; i <= result.getMetaData().getColumnCount(); i++) {
-                    if (isTimestamp(result.getString(i))) {
-                        ZonedDateTime zdt = TimeZoneConverter.stringToZonedDateTime(result.getString(i), ZoneId.of("UTC"));
-                        zdt = TimeZoneConverter.toZone(zdt, ZoneId.systemDefault());
-                        String zdtString = TimeZoneConverter.makeReadable(zdt);
-
-                        row.add(zdtString);
-                    }
-                    else {
-                        row.add(result.getString(i));
-                    }
-                }
-                rowResults.add(row);
-
-            }
-            return rowResults;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return rowResults;
-    }
-
-    public static boolean isTimestamp(String string) {
-        SimpleDateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        boolean isTimestamp = false;
-        try {
-            format.parse(string);
-            isTimestamp = true;
-        } catch (Exception ignore) { }
-
-        return isTimestamp;
     }
 
     /**
