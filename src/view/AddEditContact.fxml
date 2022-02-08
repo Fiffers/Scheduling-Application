@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane stylesheets="@../resources/bootstrap.css" xmlns="http://javafx.com/javafx/11" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AddEditContact">
+<AnchorPane stylesheets="@../resources/bootstrap.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AddEditContact">
     <children>
       <StackPane fx:id="appointment_pane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -40,7 +40,7 @@
                                           <TextField fx:id="contact_email" />
                                           <ButtonBar buttonMinWidth="60.0">
                                              <buttons>
-                                                <Button fx:id="contact_cancel" mnemonicParsing="false" onAction="#cancelContact" styleClass="danger" stylesheets="@../resources/bootstrap.css" text="Cancel" />
+                                                <Button fx:id="contact_cancel" mnemonicParsing="false" onAction="#cancelContact" styleClass="default" stylesheets="@../resources/bootstrap.css" text="Cancel" />
                                                 <Button fx:id="contact_save" mnemonicParsing="false" onAction="#saveContact" styleClass="primary" text="Save" />
                                              </buttons>
                                              <VBox.margin>

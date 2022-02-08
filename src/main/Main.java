@@ -13,14 +13,17 @@ import javafx.stage.Stage;
 import java.util.ResourceBundle;
 import java.util.Locale;
 
+import model.Appointment;
+import model.Contact;
+import model.Customer;
 import utilities.Popup;
 import utilities.ResetDatabase;
 
 public class Main extends Application {
     /** Just some global variables, nothing to see here =) */
-    public static ObservableList selectedAppointment;
-    public static ObservableList selectedCustomer;
-    public static ObservableList selectedContact;
+    public static Appointment selectedAppointment;
+    public static Customer selectedCustomer;
+    public static Contact selectedContact;
     public static String username;
     public static Integer userID;
     public static boolean updateDatabase   = false;

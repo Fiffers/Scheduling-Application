@@ -1,34 +1,46 @@
 package controller;
 
-import database.DBConnection;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
-import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
+
 import main.Main;
+import database.DBConnection;
 import database.DBInteraction;
+import model.Appointment;
+import model.Contact;
+import model.Customer;
 import utilities.Popup;
-import utilities.RemoveSquareBrackets;
+
+import utilities.TimeZoneConverter;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class Index implements Initializable {
     @FXML private Label signed_in_as, sign_out;
-    @FXML private TableView appointments_table, customers_table, contacts_table;
+    @FXML private TableView<Appointment> appointments_table;
+    @FXML private TableView<Customer> customers_table;
+    @FXML private TableView<Contact> contacts_table;
     @FXML private Button appointment_edit, customer_edit, contact_edit, appointment_delete, customer_delete, contact_delete;
-    @FXML private AnchorPane appointments_container, customers_container, contacts_container;
+
+    ObservableList<Appointment> appointmentList = FXCollections.observableArrayList();
+    ObservableList<Customer>    customerList    = FXCollections.observableArrayList();
+    ObservableList<Contact>     contactList     = FXCollections.observableArrayList();
 
     String appointments_table_data = "SELECT Appointment_ID, Title, Description, Location, Type, Start, End, " +
             "customers.Customer_Name, users.User_Name, contacts.Contact_Name FROM appointments " +
@@ -44,51 +56,128 @@ public class Index implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         signed_in_as.setText("Signed in as: " + Main.username);
 
-        try {
-            tableViewInsertData(appointments_table, appointments_table_data);
-            tableViewInsertData(customers_table, customers_table_data);
-            tableViewInsertData(contacts_table, contacts_table_data);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        appointmentsTableInsertData(appointments_table_data);
+        customersTableInsertData(customers_table_data);
+        contactsTableInsertData(contacts_table_data);
 
     }
 
-    /**
-     * Add data to tables dynamically
-     * @param tableView The table object to have data added to
-     * @param string The SQL query to receive the data to insert into the tableView object
-     * @throws SQLException
-     */
-    public void tableViewInsertData(TableView tableView, String string) throws SQLException {
-        ObservableList<Object> rowResults = DBInteraction.query(string);
+    public void buildColumns(ResultSet result, TableView tableView) throws SQLException {
+        for (int i = 1; i <= result.getMetaData().getColumnCount(); i++) {
+            String columnName = result.getMetaData().getColumnName(i);
+            TableColumn column = new TableColumn(columnName);
+            column.setCellValueFactory(new PropertyValueFactory<Customer, String>(columnName.toLowerCase(Locale.ROOT)));
+            if (Objects.equals(column.textProperty().getValue(), "Customer_ID") ||
+                Objects.equals(column.textProperty().getValue(), "Contact_ID") ||
+                Objects.equals(column.textProperty().getValue(), "Appointment_ID")) {
+                column.setVisible(false);
+            }
+            tableView.getColumns().addAll(column);
+        }
+    }
+
+    public void appointmentsTableInsertData(String string) {
 
         try {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
             ResultSet result = ps.executeQuery();
+            boolean toggle = true;
 
-            for (int i = 0; i < result.getMetaData().getColumnCount(); i++) {
-                final int j = i;
-                TableColumn column = new TableColumn(result.getMetaData().getColumnName(i + 1).replace("_", " ").replace(" ID", ""));
-                column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
-                    public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
-                        String cellText = param.getValue().get(j).toString();
-                        return new SimpleStringProperty(cellText);
-                    }
-                });
-                /** Make sure the primary key is hidden in the tableview, but is still accessible */
-                if (Objects.equals(column.textProperty().getValue(), "Appointment") ||
-                    Objects.equals(column.textProperty().getValue(), "Customer") ||
-                    Objects.equals(column.textProperty().getValue(), "Contact")) {
-                    tableView.getColumns().addAll(column);
-                    column.setVisible(false);
+            while (result.next()) {
+
+                Appointment appointment = new Appointment();
+                appointment.setAppointment_id(result.getInt("Appointment_ID"));
+                appointment.setTitle(result.getString("Title"));
+                appointment.setDescription(result.getString("Description"));
+                appointment.setLocation(result.getString("Location"));
+                appointment.setType(result.getString("Type"));
+                appointment.setCustomer_name(result.getString("Customer_Name"));
+                appointment.setContact_name(result.getString("Contact_Name"));
+                appointment.setUser_name(result.getString("User_Name"));
+                appointment.setStartUTC(result.getString("Start"));
+                appointment.setEndUTC(result.getString("End"));
+
+                /** Convert string to ZonedDateTime in UTC */
+                ZonedDateTime startZDT = TimeZoneConverter.stringToZonedDateTime(result.getString("Start"), ZoneId.of("UTC"));
+                ZonedDateTime endZDT   = TimeZoneConverter.stringToZonedDateTime(result.getString("End"), ZoneId.of("UTC"));
+
+                /** Convert ZDT to local time zone */
+                startZDT = TimeZoneConverter.toZone(startZDT, ZoneId.systemDefault());
+                endZDT   = TimeZoneConverter.toZone(endZDT, ZoneId.systemDefault());
+
+                /** Format it into a user-friendly string for easier readability */
+                String start = TimeZoneConverter.makeReadable(startZDT);
+                String end   = TimeZoneConverter.makeReadable(endZDT);
+
+                appointment.setStart(start);
+                appointment.setEnd(end);
+                appointmentList.setAll(appointment);
+
+                while (toggle) {
+                    buildColumns(result, appointments_table);
+                    toggle = false;
                 }
-                else {
-                    tableView.getColumns().addAll(column);
-                }
+                appointments_table.getItems().add(appointment);
             }
-            tableView.setItems(rowResults);
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void customersTableInsertData(String string) {
+
+        try {
+            PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
+            ResultSet result = ps.executeQuery();
+            boolean toggle = true;
+
+            while (result.next()) {
+
+                Customer customer = new Customer();
+                customer.setCustomer_id(result.getInt("Customer_ID"));
+                customer.setCustomer_name(result.getString("Customer_Name"));
+                customer.setAddress(result.getString("Address"));
+                customer.setPostal_code(result.getString("Postal_Code"));
+                customer.setPhone(result.getString("Phone"));
+                customer.setDivision_id(result.getString("Division"));
+
+                customerList.setAll(customer);
+
+                while (toggle) {
+                    buildColumns(result, customers_table);
+                    toggle = false;
+                }
+                customers_table.getItems().add(customer);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void contactsTableInsertData(String string) {
+        try {
+            PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
+            ResultSet result = ps.executeQuery();
+            boolean toggle = true;
+
+            while (result.next()) {
+
+                Contact contact = new Contact();
+                contact.setContact_id(result.getInt("Contact_ID"));
+                contact.setContact_name(result.getString("Contact_Name"));
+                contact.setEmail(result.getString("Email"));
+
+                contactList.setAll(contact);
+
+                while (toggle) {
+                    buildColumns(result, contacts_table);
+                    toggle = false;
+                }
+                contacts_table.getItems().add(contact);
+
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -96,7 +185,7 @@ public class Index implements Initializable {
 
     /**
      * Handle the simplest of the button presses
-     * Note: If the third argument in the SceneController method == true, the application
+     * Note: If the third argument in the SceneController.changeScene method == true, the application
      *  assumes that the user wants to update an already existing row in the SQL database.
      *  This cuts the number of scenes we need to build in half, since we won't need to
      *  make both an add and edit scene for each appointment, customer, and contact.
@@ -130,24 +219,24 @@ public class Index implements Initializable {
 
     /** Handle user selection of a row in each tableview */
     public void selectAppointment() {
-        Main.selectedAppointment = appointments_table.getSelectionModel().getSelectedItems();
-        if (!Main.selectedAppointment.isEmpty()) {
+        Main.selectedAppointment = appointments_table.getSelectionModel().getSelectedItem();
+        if (Main.selectedAppointment != null) {
             appointment_edit.setDisable(false);
             appointment_delete.setDisable(false);
         }
     }
 
     public void selectCustomer(){
-        Main.selectedCustomer = customers_table.getSelectionModel().getSelectedItems();
-        if (!Main.selectedCustomer.isEmpty()) {
+        Main.selectedCustomer = customers_table.getSelectionModel().getSelectedItem();
+        if (Main.selectedCustomer != null) {
             customer_edit.setDisable(false);
             customer_delete.setDisable(false);
         }
     }
 
     public void selectContact(){
-        Main.selectedContact = contacts_table.getSelectionModel().getSelectedItems();
-        if (!Main.selectedContact.isEmpty()) {
+        Main.selectedContact = contacts_table.getSelectionModel().getSelectedItem();
+        if (Main.selectedContact != null) {
             contact_edit.setDisable(false);
             contact_delete.setDisable(false);
         }
@@ -155,49 +244,39 @@ public class Index implements Initializable {
 
     /** Handle deletion of selected row in each tableview */
     public void deleteAppointment(Event event) throws SQLException, IOException {
-        String selectedRow = Main.selectedAppointment.get(0).toString();
-        selectedRow = RemoveSquareBrackets.go(selectedRow);
-        String[] selectedRowArray = selectedRow.split(", ");
         boolean result = Popup.confirmationAlert("Are you sure?", "Are you sure you'd like to cancel this appointment?");
-        System.out.println(selectedRowArray[4]);
+
 
         String firstLine = "The following appointment has been cancelled:\n";
-        String id        = "Appointment ID: " + selectedRowArray[0] + "\n";
-        String title     = "Appointment Title: " + selectedRowArray[1] + "\n";
-        String type      = "Appointment Type: " + selectedRowArray[4];
+        String id        = "Appointment ID: " + Main.selectedAppointment.getAppointment_id() + "\n";
+        String title     = "Appointment Title: " + Main.selectedAppointment.getTitle() + "\n";
+        String type      = "Appointment Type: " + Main.selectedAppointment.getType();
 
         if (result) {
-            DBInteraction.update("DELETE FROM appointments WHERE Appointment_ID = '" + selectedRowArray[0] + "'");
+            DBInteraction.update("DELETE FROM appointments WHERE Appointment_ID = '" + Main.selectedAppointment.getAppointment_id() + "'");
             Popup.informationAlert("Information", firstLine + id + title + type);
             SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
         }
     }
 
     public void deleteCustomer(Event event) throws SQLException, IOException {
-        String selectedRow = Main.selectedCustomer.get(0).toString();
-        selectedRow = RemoveSquareBrackets.go(selectedRow);
-        String[] selectedRowArray = selectedRow.split(", ");
-        System.out.println(selectedRowArray[0]);
+
         boolean result = Popup.confirmationAlert("Are you sure?", "Are you sure you'd like to delete this customer?\n" +
                 "Their respective appointments will also be deleted!");
 
         if (result) {
-            DBInteraction.update("DELETE FROM customers WHERE Customer_ID = '" + selectedRowArray[0] + "'");
-            Popup.informationAlert("Information", "Customer " + selectedRowArray[1] + " has been deleted!");
+            DBInteraction.update("DELETE FROM customers WHERE Customer_ID = '" + Main.selectedCustomer.getCustomer_id() + "'");
+            Popup.informationAlert("Information", "Customer " + Main.selectedCustomer.getCustomer_name() + " has been deleted!");
             SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
         }
     }
 
     public void deleteContact(Event event) throws SQLException, IOException {
-        String selectedRow = Main.selectedContact.get(0).toString();
-        selectedRow = RemoveSquareBrackets.go(selectedRow);
-        String[] selectedRowArray = selectedRow.split(", ");
-        System.out.println(selectedRowArray[0]);
         boolean result = Popup.confirmationAlert("Are you sure?", "Are you sure you'd like to delete this contact?");
 
         if (result) {
-            DBInteraction.update("DELETE FROM contacts WHERE Contact_ID = '" + selectedRowArray[0] + "'");
-            Popup.informationAlert("Information", "Contact " + selectedRowArray[1] + " has been deleted!");
+            DBInteraction.update("DELETE FROM contacts WHERE Contact_ID = '" + Main.selectedContact.getContact_id() + "'");
+            Popup.informationAlert("Information", "Contact " + Main.selectedContact.getContact_name() + " has been deleted!");
             SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
         }
     }
@@ -213,14 +292,4 @@ public class Index implements Initializable {
         Main.userID              = null;
         Main.updateDatabase      = false;
     }
-
-    public void expandAppointments() {
-        customers_container.getChildren().clear();
-        contacts_container.getChildren().clear();
-
-
-        double tableHeight = appointments_table.getHeight();
-        appointments_table.setMinHeight(tableHeight*3);
-    }
-
 }

@@ -7,9 +7,10 @@ import javafx.scene.control.TextField;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Locale;
+
 import java.util.Scanner;
 
 public class InputValidator {
@@ -87,6 +88,18 @@ public class InputValidator {
         return false;
     }
 
+    public static boolean isPhoneNumber(String string) throws FileNotFoundException {
+        string = string.replaceAll("-", "");
+        try {
+            Long.parseLong(string);
+            return true;
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            Popup.errorAlert("Error", "Make sure you input the phone number correctly!");
+            return false;
+        }
+    }
+
     public static boolean isValidHour(String string) {
         try {
             Integer.parseInt(string);
@@ -136,10 +149,10 @@ public class InputValidator {
     /**
      * Checks to make sure appointment start and end times are between normal business hours
      * @param zdt The time to compare to business hours in 24hr format
-     * @return Whether or not the provided time is between normal business hours
+     * @return true if the provided time is between normal business hours
      */
     public static boolean isBusinessHours(ZonedDateTime zdt) {
-        //* Business hours are between 8 AM and 10 PM EST, including weekends. */
+        /** Business hours are between 8 AM and 10 PM EST, including weekends. */
         ZonedDateTime converted = TimeZoneConverter.toZone(zdt, ZoneId.of("America/New_York"));
         ZonedDateTime openTime = TimeZoneConverter.stringToZonedDateTime("2000-01-01 08:00:00", ZoneId.of("America/New_York"));
         ZonedDateTime closeTime = TimeZoneConverter.stringToZonedDateTime("2000-01-01 22:00:00", ZoneId.of("America/New_York"));

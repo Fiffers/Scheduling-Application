@@ -1,17 +1,15 @@
 package controller;
 
-import database.DBConnection;
+
 import database.DBInteraction;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import main.Main;
+import model.Contact;
 import utilities.InputValidator;
-import utilities.RemoveSquareBrackets;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class AddEditContact {
@@ -29,32 +27,14 @@ public class AddEditContact {
          * If editing a contact that already exists, get the data for that
          * contact and insert the data into the correct scene elements
          */
-        final String[][] array = {null};
         try {
             if (Main.updateDatabase) {
-
                 contact_label.setText("Edit Contact");
-                /** Get data of a selected row in a TableView and format it*/
-                Main.selectedContact.forEach((contact) -> {
-                    String selectedRow = RemoveSquareBrackets.go(contact.toString());
-                    array[0] = selectedRow.split(",");
-                });
-
-                /** Perform an SQL query based upon the Contact ID */
-                String string = "SELECT * FROM contacts WHERE contact_id = '" + array[0][0] + "'";
-                PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
-                ResultSet result = ps.executeQuery();
-
-                while (result.next()) {
-
-                    /** Insert data into textfields */
-                    contact_id.setText(result.getString("Contact_ID"));
-                    contact_name.setText(result.getString("Contact_Name"));
-                    contact_email.setText(result.getString("Email"));
-                }
+                contact_id.setText(String.valueOf(Main.selectedContact.getContact_id()));
+                contact_name.setText(Main.selectedContact.getContact_name());
+                contact_email.setText(Main.selectedContact.getEmail());
             }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -79,24 +59,24 @@ public class AddEditContact {
             InputValidator.isEmail(contact_email.getText())) {
 
             /** Get strings from input fields */
-            String contactID = contact_id.getText();
-            String contactName = contact_name.getText();
-            String contactEmail = contact_email.getText();
+            Contact contact = new Contact();
+            contact.setContact_id(Integer.parseInt(contact_id.getText()));
+            contact.setContact_name(contact_name.getText());
+            contact.setEmail(contact_email.getText());
 
             /**
-             * Check if there's a contact id already
-             * If there is one already, update a row that already exists
+             * Check if we want to update the database
+             * If true, update a row that already exists
              * If not, insert a new row into the SQL database
              */
             String query;
-            if (contactID.equals("")) {
-                query = "INSERT INTO contacts (Contact_Name, Email) " +
-                        "VALUES ('" + contactName + "', '" + contactEmail + "')";
-
+            if (Main.updateDatabase) {
+                query = "UPDATE contacts SET Contact_Name = '" + contact.getContact_name() + "', Email = '" + contact.getEmail() + "'" +
+                        "WHERE Contact_ID = '" + contact.getContact_id() + "'";
             }
             else {
-                query = "UPDATE contacts SET Contact_Name = '" + contactName + "', Email = '" + contactEmail + "'" +
-                        "WHERE Contact_ID = '" + contactID + "'";
+                query = "INSERT INTO contacts (Contact_Name, Email) " +
+                        "VALUES ('" + contact.getContact_name() + "', '" + contact.getEmail() + "')";
             }
             DBInteraction.update(query);
 

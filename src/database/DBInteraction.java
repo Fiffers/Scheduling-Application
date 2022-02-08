@@ -2,20 +2,16 @@ package database;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import main.Main;
 
-import java.io.FileNotFoundException;
+import javafx.scene.control.ComboBox;
+import main.Main;
+import utilities.TimeZoneConverter;
+
 import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
-
-import static java.lang.Integer.parseInt;
-
 
 /**
  * This class is a wrapper for SQL queries
@@ -39,37 +35,85 @@ public class DBInteraction {
     }
 
     /**
-     * Performs a SELECT query on the database
-     * @param string The SQL query to be executed
-     * @return The result of the SQL query
-     * @throws SQLException
+     * Gets possible rows for combobox and inserts them into it
+     * @param string The SQL Query
+     * @param comboBox The comboBox to insert rows into
      */
-    public static ObservableList<Object> query(String string) throws SQLException {
-        ObservableList<Object> rowResults = null;
-
+    public static void getComboBoxOptions(String string, ComboBox comboBox) {
+        comboBox.getItems().clear();
         try {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
             ResultSet result = ps.executeQuery();
-            rowResults = FXCollections.observableArrayList();
-            while (result.next()) {
-                ObservableList<String> row = FXCollections.observableArrayList();
 
+            while (result.next()) {
+                comboBox.getItems().add(result.getString(1));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void setSelectedComboBoxOption(String string, ComboBox comboBox) {
+        try {
+            PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
+            ResultSet result = ps.executeQuery();
+
+            while (result.next()) {
+                comboBox.setValue(result.getString(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String simpleQuery(String string) {
+        try {
+            PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
+            ResultSet result = ps.executeQuery();
+
+            while (result.next()) {
+                return result.getString(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Performs a SELECT query on the database
+     * @param string The SQL query to be executed
+     * @return The result of the SQL query
+     */
+    public static ObservableList qury(String string) {
+        ObservableList rowResults = FXCollections.observableArrayList();
+        try {
+            PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
+            ResultSet result = ps.executeQuery();
+
+            while (result.next()) {
+                ObservableList row = FXCollections.observableArrayList();
                 for (int i = 1; i <= result.getMetaData().getColumnCount(); i++) {
                     if (isTimestamp(result.getString(i))) {
-                        row.add(result.getTimestamp(i).toLocalDateTime().toString());
+                        ZonedDateTime zdt = TimeZoneConverter.stringToZonedDateTime(result.getString(i), ZoneId.of("UTC"));
+                        zdt = TimeZoneConverter.toZone(zdt, ZoneId.systemDefault());
+                        String zdtString = TimeZoneConverter.makeReadable(zdt);
+
+                        row.add(zdtString);
                     }
                     else {
                         row.add(result.getString(i));
                     }
                 }
                 rowResults.add(row);
+
             }
             return rowResults;
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println(rowResults);
         return rowResults;
     }
 
@@ -82,16 +126,6 @@ public class DBInteraction {
         } catch (Exception ignore) { }
 
         return isTimestamp;
-    }
-
-    public static boolean isInt(String string) {
-        boolean isInt = false;
-        try {
-            parseInt(string);
-            isInt = true;
-        } catch (Exception ignore) { }
-
-        return isInt;
     }
 
     /**

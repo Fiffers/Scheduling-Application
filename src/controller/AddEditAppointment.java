@@ -15,6 +15,8 @@ import java.time.*;
 import main.Main;
 import utilities.*;
 
+import javax.swing.*;
+
 public class AddEditAppointment {
     @FXML private TextField appointment_id, appointment_title, appointment_location;
     @FXML private TextField appointment_start_hours, appointment_start_minutes;
@@ -26,89 +28,49 @@ public class AddEditAppointment {
 
     public void initialize() throws SQLException {
 
-        final String[][] array = {null};
         if (Main.updateDatabase) {
             appointment_label.setText("Edit Appointment");
             try {
 
-                Main.selectedAppointment.forEach((appointment) -> {
-                    String selectedRow = RemoveSquareBrackets.go(appointment.toString());
-                    array[0] = selectedRow.split(",");
-                });
-                String string = "SELECT * FROM appointments WHERE appointment_id = '" + array[0][0] + "'";
-                PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
-                ResultSet result = ps.executeQuery();
-                while (result.next()) {
+                /** Set text for TextFields */
+                appointment_id.setText(String.valueOf(Main.selectedAppointment.getAppointment_id()));
+                appointment_title.setText(Main.selectedAppointment.getTitle());
+                appointment_location.setText(Main.selectedAppointment.getLocation());
+                appointment_description.setText(Main.selectedAppointment.getDescription());
+                appointment_type.setText(Main.selectedAppointment.getType());
+
+                /** Display local time */
+                ZonedDateTime startDateTimeLocal = TimeZoneConverter.stringToZonedDateTime(Main.selectedAppointment.getStartUTC(), ZoneId.of("UTC"));
+                ZonedDateTime endDateTimeLocal   = TimeZoneConverter.stringToZonedDateTime(Main.selectedAppointment.getEndUTC(), ZoneId.of("UTC"));
+
+                startDateTimeLocal = TimeZoneConverter.toZone(startDateTimeLocal, ZoneId.systemDefault());
+                endDateTimeLocal   = TimeZoneConverter.toZone(endDateTimeLocal, ZoneId.systemDefault());
+
+                appointment_date.setValue(startDateTimeLocal.toLocalDate());
+
+                appointment_start_hours.setText(PrependZero.twoDigits(startDateTimeLocal.getHour()));
+                appointment_start_minutes.setText(PrependZero.twoDigits(startDateTimeLocal.getMinute()));
+
+                appointment_end_hours.setText(PrependZero.twoDigits(endDateTimeLocal.getHour()));
+                appointment_end_minutes.setText(PrependZero.twoDigits(endDateTimeLocal.getMinute()));
+
+                /** Set value in ComboBoxes */
+                appointment_user.setValue(Main.selectedAppointment.getUser_name());
+                appointment_customer.setValue(Main.selectedAppointment.getCustomer_name());
+                appointment_contact.setValue(Main.selectedAppointment.getContact_name());
+
+                /** Get possible entries for each ComboBox, format and insert into respective ComboBox */
+                DBInteraction.getComboBoxOptions("SELECT customer_name FROM customers", appointment_customer);
+                DBInteraction.getComboBoxOptions("SELECT contact_name FROM contacts", appointment_contact);
+                DBInteraction.getComboBoxOptions("SELECT user_name FROM users", appointment_user);
 
 
-                    appointment_id.setText(result.getString("Appointment_ID"));
-                    appointment_title.setText(result.getString("Title"));
-                    appointment_location.setText(result.getString("Location"));
-                    appointment_description.setText(result.getString("Description"));
-                    appointment_type.setText(result.getString("Type"));
-
-                    /** BEGIN TIMEZONE CONVERSION STUFF */
-                    ZonedDateTime startDateTimeLocal = TimeZoneConverter.stringToZonedDateTime(result.getString("Start"), ZoneId.of("UTC"));
-                    ZonedDateTime endDateTimeLocal   = TimeZoneConverter.stringToZonedDateTime(result.getString("End"), ZoneId.of("UTC"));
-
-                    startDateTimeLocal = TimeZoneConverter.toZone(startDateTimeLocal, ZoneId.systemDefault());
-                    endDateTimeLocal   = TimeZoneConverter.toZone(endDateTimeLocal, ZoneId.systemDefault());
-
-                    appointment_date.setValue(startDateTimeLocal.toLocalDate());
-
-                    appointment_start_hours.setText(PrependZero.twoDigits(startDateTimeLocal.getHour()));
-                    appointment_start_minutes.setText(PrependZero.twoDigits(startDateTimeLocal.getMinute()));
-
-                    appointment_end_hours.setText(PrependZero.twoDigits(endDateTimeLocal.getHour()));
-                    appointment_end_minutes.setText(PrependZero.twoDigits(endDateTimeLocal.getMinute()));
-
-                    for (int i = 1; i <= result.getMetaData().getColumnCount(); i++) {
-                        String columnName = result.getMetaData().getColumnName(i);
-
-                        if (columnName.equals("Customer_ID")) {
-                            String customerName = String.valueOf(DBInteraction.query("SELECT customer_name FROM customers WHERE customer_id = '" + result.getString(i) + "'"));
-                            customerName = RemoveSquareBrackets.go(customerName);
-                            appointment_customer.setValue(customerName);
-                        }
-                        if (columnName.equals("Contact_ID")) {
-                            String contactName = String.valueOf(DBInteraction.query("SELECT contact_name FROM contacts WHERE contact_id = '" + result.getString(i) + "'"));
-                            contactName = RemoveSquareBrackets.go(contactName);
-                            appointment_contact.setValue(contactName);
-                        }
-                        if (columnName.equals("User_ID")) {
-                            String userName = String.valueOf(DBInteraction.query("SELECT user_name FROM users WHERE user_id = '" + result.getString(i) + "'"));
-                            userName = RemoveSquareBrackets.go(userName);
-                            appointment_user.setValue(userName);
-                        }
-                    }
-                }
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                Main.selectedAppointment = null;
             }
         }
 
-        ObservableList<Object> customers = DBInteraction.query("SELECT customer_name FROM customers");
-        ObservableList<Object> contacts  = DBInteraction.query("SELECT contact_name FROM contacts");
-        ObservableList<Object> users     = DBInteraction.query("SELECT user_name FROM users");
-        customers.replaceAll(customer -> {
-            customer = RemoveSquareBrackets.go(customer.toString());
-            return customer;
-        });
 
-        contacts.replaceAll(contact -> {
-            contact = RemoveSquareBrackets.go(contact.toString());
-            return contact;
-        });
-        users.replaceAll(user -> {
-            user = RemoveSquareBrackets.go(user.toString());
-            return user;
-        });
-
-        appointment_customer.setItems(customers);
-        appointment_contact.setItems(contacts);
-        appointment_user.setItems(users);
     }
 
     public void cancelAppointment(ActionEvent event) throws Exception {
@@ -169,13 +131,9 @@ public class AddEditAppointment {
             String customer    = appointment_customer.getValue().toString();
             String contact     = appointment_contact.getValue().toString();
 
-            customer = String.valueOf(DBInteraction.query("SELECT Customer_ID FROM customers WHERE Customer_Name = '" + customer + "'"));
-            contact  = String.valueOf(DBInteraction.query("SELECT Contact_ID FROM contacts WHERE Contact_Name = '" + contact + "'"));
-            user     = String.valueOf(DBInteraction.query("SELECT User_ID FROM users WHERE User_Name = '" + user + "'"));
-
-            customer = RemoveSquareBrackets.go(customer);
-            contact  = RemoveSquareBrackets.go(contact);
-            user     = RemoveSquareBrackets.go(user);
+            customer = String.valueOf(DBInteraction.simpleQuery("SELECT Customer_ID FROM customers WHERE Customer_Name = '" + customer + "'"));
+            contact  = String.valueOf(DBInteraction.simpleQuery("SELECT Contact_ID FROM contacts WHERE Contact_Name = '" + contact + "'"));
+            user     = String.valueOf(DBInteraction.simpleQuery("SELECT User_ID FROM users WHERE User_Name = '" + user + "'"));
 
             String query;
             if (id.equals("") && inputValid) {

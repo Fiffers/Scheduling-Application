@@ -17,7 +17,7 @@ import database.DBConnection;
 import database.DBInteraction;
 
 import utilities.InputValidator;
-import utilities.RemoveSquareBrackets;
+
 
 public class AddEditCustomer {
 
@@ -27,62 +27,49 @@ public class AddEditCustomer {
 
     /**
      * Checks if user wants to edit or add a customer, and goes from there
-     * @throws SQLException
      */
-    public void initialize() throws SQLException {
+    public void initialize() {
 
         /**
          * If editing a customer that already exists, get the data for that
          * customer and insert the data into the correct scene elements
          */
-        final String[][] array = {null};
         try {
             if (Main.updateDatabase) {
-
-                customer_label.setText("Edit Customer");
                 customer_division.setDisable(false);
-                /** Get data of a selected row in a TableView and format it*/
-                Main.selectedCustomer.forEach((customer) -> {
-                    String selectedRow = RemoveSquareBrackets.go(customer.toString());
-                    array[0] = selectedRow.split(",");
-                });
+                customer_label.setText("Edit Customer");
+
+                /** Insert data into form */
+                customer_id.setText(String.valueOf(Main.selectedCustomer.getCustomer_id()));
+                customer_name.setText(Main.selectedCustomer.getCustomer_name());
+                customer_address.setText(Main.selectedCustomer.getAddress());
+                customer_postal_code.setText(Main.selectedCustomer.getPostal_code());
+                customer_phone.setText(Main.selectedCustomer.getPhone());
+                customer_division.setValue(Main.selectedCustomer.getDivision());
 
                 /** Perform an SQL query based upon the Customer ID */
-                String string = "SELECT * FROM customers WHERE customer_id = '" + array[0][0] + "'";
+                String string = "SELECT * FROM customers WHERE customer_id = '" + Main.selectedCustomer.getCustomer_id() + "'";
                 PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
                 ResultSet result = ps.executeQuery();
                 while (result.next()) {
-
-                    /** Insert data into textfields */
-                    customer_id.setText(result.getString("Customer_ID"));
-                    customer_name.setText(result.getString("Customer_Name"));
-                    customer_address.setText(result.getString("Address"));
-                    customer_postal_code.setText(result.getString("Postal_Code"));
-                    customer_phone.setText(result.getString("Phone"));
 
                     /** Handle data insertion of country and division comboboxes */
                     for (int i = 1; i <= result.getMetaData().getColumnCount(); i++) {
                         String columnName = result.getMetaData().getColumnName(i);
                         if (columnName.equals("Division_ID")) {
-
+//
                             /** Get country ID */
                             String query = "SELECT Country_ID FROM first_level_divisions WHERE division_id = '" +
                                     result.getString(i) + "'";
-                            String countryID = String.valueOf(DBInteraction.query(query));
-                            countryID = RemoveSquareBrackets.go(countryID);
 
-                            /** Get country name from its ID and set combobox to that value */
+                            String countryID = DBInteraction.simpleQuery(query);
+
+//                            /** Get country name from its ID and set combobox to that value */
                             query = "SELECT Country FROM countries WHERE country_id = '" + countryID + "'";
-                            String country = String.valueOf(DBInteraction.query(query));
-                            country = RemoveSquareBrackets.go(country);
-                            customer_country.setValue(country);
+                            DBInteraction.setSelectedComboBoxOption(query, customer_country);
 
-                            /** Get division name from Divison ID and set combobox to that value */
-                            query = "SELECT Division FROM first_level_divisions WHERE division_id = '" +
-                                    result.getString(i) + "'";
-                            String division = String.valueOf(DBInteraction.query(query));
-                            division = RemoveSquareBrackets.go(division);
-                            customer_division.setValue(division);
+
+
                             selectCustomerCountry();
                         }
                     }
@@ -93,12 +80,7 @@ public class AddEditCustomer {
         }
 
         /** Add countries to their combobox. Divisions will be added to the scene later. */
-        ObservableList<Object> countries = DBInteraction.query("SELECT country from countries");
-        countries.replaceAll((country) -> {
-            country = RemoveSquareBrackets.go(country.toString());
-            return country;
-        });
-        customer_country.setItems(countries);
+        DBInteraction.getComboBoxOptions("SELECT country FROM countries", customer_country);
     }
 
     /**
@@ -116,12 +98,18 @@ public class AddEditCustomer {
      * @throws Exception
      */
     public void saveCustomer(ActionEvent event) throws Exception {
-        if (InputValidator.textFieldFilled(customer_name, "a name") &&
-            InputValidator.textFieldFilled(customer_address, "an address") &&
-            InputValidator.textFieldFilled(customer_postal_code, "a postal code") &&
-            InputValidator.textFieldFilled(customer_phone, "a phone number") &&
-            InputValidator.comboBoxSelected(customer_country, "a country") &&
-            InputValidator.comboBoxSelected(customer_division, "a division")) {
+
+        boolean textFieldsFilled =  InputValidator.textFieldFilled(customer_name, "a name") &&
+                                    InputValidator.textFieldFilled(customer_address, "an address") &&
+                                    InputValidator.textFieldFilled(customer_postal_code, "a postal code") &&
+                                    InputValidator.textFieldFilled(customer_phone, "a phone number");
+
+        boolean comboBoxesFilled =  InputValidator.comboBoxSelected(customer_country, "a country") &&
+                                    InputValidator.comboBoxSelected(customer_division, "a division");
+
+        boolean isValidPhoneNum  =  InputValidator.isPhoneNumber(customer_phone.getText());
+
+        if (textFieldsFilled && comboBoxesFilled && isValidPhoneNum) {
 
             /** Get strings from input fields */
             String customerID = customer_id.getText();
@@ -133,8 +121,7 @@ public class AddEditCustomer {
 
             /** Convert division name to its respective id */
             String getDivisionIDQuery = "SELECT division_id from first_level_divisions WHERE Division = '" + customerDivision + "'";
-            String customerDivisionID = String.valueOf(DBInteraction.query(getDivisionIDQuery));
-            customerDivisionID = RemoveSquareBrackets.go(customerDivisionID);
+            String customerDivisionID = String.valueOf(DBInteraction.simpleQuery(getDivisionIDQuery));
 
             /**
              * Check if there's a customer id already
@@ -171,11 +158,6 @@ public class AddEditCustomer {
         String query = "SELECT division FROM first_level_divisions " +
                 "INNER JOIN countries ON countries.Country_ID=first_level_divisions.Country_ID " +
                 "WHERE Country = '" + selectedCountry + "'";
-        ObservableList divisions = DBInteraction.query(query);
-        divisions.replaceAll(division -> {
-            division = RemoveSquareBrackets.go(division.toString());
-            return division;
-        });
-        customer_division.setItems(divisions);
+        DBInteraction.getComboBoxOptions(query, customer_division);
     }
 }

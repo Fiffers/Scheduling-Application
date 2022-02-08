@@ -1,8 +1,6 @@
 package utilities;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,5 +32,17 @@ public class TimeZoneConverter {
     public static Timestamp toSQL(ZonedDateTime time) {
         Timestamp timestamp = Timestamp.valueOf(time.toLocalDateTime());
         return timestamp;
+    }
+
+    public static String makeReadable(ZonedDateTime time) {
+
+        String month  = PrependZero.twoDigits(time.getMonthValue());
+        String day    = PrependZero.twoDigits(time.getDayOfMonth());
+        String year   = String.valueOf(time.getYear());
+        String hour   = PrependZero.twoDigits(time.getHour());
+        String minute = PrependZero.twoDigits(time.getMinute());
+
+        String string = year + "-" + month + "-" + day + " " + hour + ":" + minute;
+        return string;
     }
 }

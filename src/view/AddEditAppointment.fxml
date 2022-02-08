@@ -121,7 +121,7 @@
                                           </HBox>
                                           <ButtonBar prefHeight="40.0" prefWidth="200.0">
                                             <buttons>
-                                                <Button fx:id="appointment_cancel" mnemonicParsing="false" onAction="#cancelAppointment" styleClass="danger" stylesheets="@../resources/bootstrap.css" text="Cancel" />
+                                                <Button fx:id="appointment_cancel" mnemonicParsing="false" onAction="#cancelAppointment" styleClass="default" stylesheets="@../resources/bootstrap.css" text="Cancel" />
                                                 <Button fx:id="appointment_save" mnemonicParsing="false" onAction="#saveAppointment" styleClass="primary" text="Save" />
                                             </buttons>
                                           </ButtonBar>
