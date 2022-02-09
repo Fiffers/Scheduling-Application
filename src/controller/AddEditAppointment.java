@@ -95,6 +95,8 @@ public class AddEditAppointment {
             Timestamp endTime   = TimeZoneConverter.toSQL(endTimeUTC);
             Timestamp now       = Timestamp.from(Instant.now());
 
+
+
             boolean businessHours    =  InputValidator.isBusinessHours(startTimeUTC) &&
                                         InputValidator.isBusinessHours(endTimeUTC);
 
@@ -114,10 +116,21 @@ public class AddEditAppointment {
 
             boolean textAreaFilled   =  InputValidator.textAreaFilled(appointment_description, "a description");
 
-            boolean inputValid = textFieldsFilled && comboBoxesFilled && datePickerFilled && textAreaFilled && businessHours;
+            String appointmentID = "";
+            if (!appointment_id.getText().equals("")) {
+                appointmentID = appointment_id.getText().toString();
+            }
+            String customerID           =  DBInteraction.simpleQuery("SELECT Customer_ID FROM customers WHERE Customer_Name = '" + appointment_customer.getValue().toString() + "'");
+            boolean noStartOverlap = InputValidator.noAppointmentOverlap(startTimeUTC, customerID, appointmentID);
+            boolean noEndOverlap   = InputValidator.noAppointmentOverlap(endTimeUTC, customerID, appointmentID);
+            boolean noOverlap = noStartOverlap && noEndOverlap;
+
+            boolean startBeforeEnd = InputValidator.isStartBeforeEnd(startTimeUTC, endTimeUTC);
+
+            boolean inputValid = textFieldsFilled && comboBoxesFilled && datePickerFilled && textAreaFilled && businessHours && noOverlap && startBeforeEnd;
 
             Appointment appointment = new Appointment();
-            if (inputValid){
+            if (inputValid) {
                 if (!appointment_id.getText().equals("")) {
                     appointment.setAppointment_id(Integer.parseInt(appointment_id.getText()));
                 }
@@ -128,9 +141,12 @@ public class AddEditAppointment {
                 appointment.setUser_name(appointment_user.getValue().toString());
                 appointment.setCustomer_name(appointment_customer.getValue().toString());
                 appointment.setContact_name(appointment_contact.getValue().toString());
-                appointment.setCustomer_id(Integer.parseInt(DBInteraction.simpleQuery("SELECT Customer_ID FROM customers WHERE Customer_Name = '" + appointment.getCustomer_name() + "'")));
+                appointment.setCustomer_id(Integer.parseInt(customerID));
                 appointment.setContact_id(Integer.parseInt(DBInteraction.simpleQuery("SELECT Contact_ID FROM contacts WHERE Contact_Name = '" + appointment.getContact_name() + "'")));
                 appointment.setUser_id(Integer.parseInt(DBInteraction.simpleQuery("SELECT User_ID FROM users WHERE User_Name = '" + appointment.getUser_name() + "'")));
+            }
+
+            if (inputValid){
 
                 String query;
                 if (Main.updateDatabase) {

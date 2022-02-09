@@ -1,16 +1,25 @@
 package utilities;
 
+import database.DBConnection;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import model.Appointment;
+import model.Customer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 public class InputValidator {
@@ -175,7 +184,64 @@ public class InputValidator {
         return true;
     }
 
-    public static boolean isCustomerOverlap() {
-        return false;
+    public static boolean noAppointmentOverlap(ZonedDateTime zdt, String customerID, String appointmentID) throws SQLException {
+        try {
+            String query = "SELECT Appointment_ID, Title, Start, End FROM appointments WHERE Customer_ID = '" + customerID + "'";
+
+            PreparedStatement ps = DBConnection.getConnection().prepareStatement(query);
+            ResultSet result = ps.executeQuery();
+
+            while (result.next()) {
+                Appointment appointment = new Appointment();
+                appointment.setAppointment_id(result.getInt("Appointment_ID"));
+                appointment.setTitle(result.getString("Title"));
+                appointment.setStartUTC(result.getString("Start"));
+                appointment.setEndUTC(result.getString("End"));
+
+
+                ZonedDateTime startZDT = TimeZoneConverter.stringToZonedDateTime(appointment.getStartUTC(), ZoneId.of("UTC"));
+                ZonedDateTime endZDT   = TimeZoneConverter.stringToZonedDateTime(appointment.getEndUTC(), ZoneId.of("UTC"));
+
+                ZonedDateTime startZDTLocal = TimeZoneConverter.toZone(startZDT, ZoneId.systemDefault());
+                ZonedDateTime endZDTLocal   = TimeZoneConverter.toZone(endZDT, ZoneId.systemDefault());
+
+
+
+                appointment.setStart(TimeZoneConverter.makeReadable(startZDTLocal));
+                appointment.setEnd(TimeZoneConverter.makeReadable(endZDTLocal));
+
+                startZDT = TimeZoneConverter.toZone(startZDT, ZoneId.of("UTC"));
+                endZDT   = TimeZoneConverter.toZone(endZDT, ZoneId.of("UTC"));
+
+                boolean isBetween = zdt.isAfter(startZDT) && zdt.isBefore(endZDT);
+                boolean isEqual = zdt.isEqual(startZDT) || zdt.isEqual(endZDT);
+
+
+
+                if (!appointmentID.equals(result.getString("Appointment_ID")) && (isBetween || isEqual)) {
+                    String errorString = "This appointment overlaps with another.\n" +
+                            "Please double check the date and times you typed in!\n" +
+                            "Overlapped Appointment: " + appointment.getTitle() + "\n" +
+                            "Start: " + appointment.getStart() + "\n" +
+                            "End: " + appointment.getEnd();
+
+                    Popup.errorAlert("Error", errorString);
+                    return false;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    public static boolean isStartBeforeEnd(ZonedDateTime start, ZonedDateTime end) {
+        if (start.isAfter(end) || start.equals(end)) {
+            String errorString = "Your start time and end time appear to be incorrect.\n" +
+                    "The end time should be at least a minute after the start time!";
+            Popup.errorAlert("Error", errorString);
+            return false;
+        }
+        return true;
     }
 }
