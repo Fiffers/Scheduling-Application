@@ -10,8 +10,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import static utilities.Print.print;
-
 /**
  * This class handles all alert popups the application needs.
  */
@@ -65,7 +63,7 @@ public class Popup {
             }
 
         } catch (Exception e) {
-            print("ERROR: buttonCount != buttonText.length\nEXCEPTION: " + e);
+            e.printStackTrace();
         }
     }
 
@@ -96,6 +94,11 @@ public class Popup {
         return result.get().getText().equals(resources.getString("yes"));
     }
 
+    /**
+     * Creates an "INFORMATION" type alert
+     * @param title The title for the alert
+     * @param message The message for the alert
+     */
     public static void informationAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         buildAlert(title, message, alert);

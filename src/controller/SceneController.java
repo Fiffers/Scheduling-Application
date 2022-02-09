@@ -33,6 +33,10 @@ public class SceneController {
         root.requestFocus();
     }
 
+    /**
+     * Centers the stage on your monitor. Kinda buggy, but it works.
+     * @param stage The stage object to center
+     */
     public static void centerStage(Stage stage) {
         double screenX = Screen.getPrimary().getVisualBounds().getWidth();
         double screenY = Screen.getPrimary().getVisualBounds().getHeight();

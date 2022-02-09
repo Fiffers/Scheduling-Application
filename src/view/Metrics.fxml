@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane stylesheets="@../resources/bootstrap.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.Metrics">
+    <children>
+      <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Group>
+               <children>
+                  <VBox prefHeight="0.0" prefWidth="800.0">
+                     <children>
+                        <AnchorPane>
+                           <children>
+                              <VBox>
+                                 <children>
+                                      <Label alignment="CENTER" prefHeight="68.0" prefWidth="1200.0" text="Metrics" textAlignment="CENTER">
+                                          <font>
+                                              <Font size="46.0" />
+                                          </font>
+                                      </Label>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane>
+                           <children>
+                              <VBox prefWidth="100.0">
+                                 <children>
+                                    <TabPane minWidth="1200.0" tabClosingPolicy="UNAVAILABLE">
+                                      <tabs>
+                                          <Tab fx:id="total_appointments" styleClass="default" text="Total Appointments" />
+                                        <Tab styleClass="default" text="Contact Schedules">
+                                             <content>
+                                                <ScrollPane fx:id="contact_schedules" prefHeight="200.0" />
+                                             </content></Tab>
+                                          <Tab text="Customer Schedules">
+                                             <content>
+                                                <ScrollPane fx:id="customer_schedules" prefHeight="200.0" />
+                                             </content></Tab>
+                                      </tabs>
+                                    </TabPane>
+                                    <ButtonBar prefHeight="40.0" prefWidth="200.0">
+                                      <buttons>
+                                        <Button mnemonicParsing="false" onAction="#returnToIndex" text="Close" />
+                                      </buttons>
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin>
+                                    </ButtonBar>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </VBox>
+               </children>
+               <StackPane.margin>
+                  <Insets />
+               </StackPane.margin>
+            </Group>
+         </children>
+      </StackPane>
+    </children>
+</AnchorPane>

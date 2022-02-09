@@ -25,20 +25,21 @@ public class AddEditCustomer {
     @FXML private ComboBox customer_country, customer_division;
 
     /**
-     * Checks if user wants to edit or add a customer, and goes from there
+     * Grabs all the data for a selected customer, and inserts that data into their respective elements
+     * to allow the user to edit them easily.
      */
     public void initialize() {
 
-        /**
-         * If editing a customer that already exists, get the data for that
-         * customer and insert the data into the correct scene elements
+        /*
+          If editing a customer that already exists, get the data for that
+          customer and insert the data into the correct scene elements
          */
         try {
             if (Main.updateDatabase) {
                 customer_division.setDisable(false);
                 customer_label.setText("Edit Customer");
 
-                /** Insert data into form */
+                /* Insert data into form */
                 customer_id.setText(String.valueOf(Main.selectedCustomer.getCustomer_id()));
                 customer_name.setText(Main.selectedCustomer.getCustomer_name());
                 customer_address.setText(Main.selectedCustomer.getAddress());
@@ -46,18 +47,18 @@ public class AddEditCustomer {
                 customer_phone.setText(Main.selectedCustomer.getPhone());
                 customer_division.setValue(Main.selectedCustomer.getDivision());
 
-                /** Perform an SQL query based upon the Customer ID */
+                /* Perform an SQL query based upon the Customer ID */
                 String string = "SELECT * FROM customers WHERE customer_id = '" + Main.selectedCustomer.getCustomer_id() + "'";
                 PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
                 ResultSet result = ps.executeQuery();
                 while (result.next()) {
 
-                    /** Handle data insertion of country and division comboboxes */
+                    /* Handle data insertion of country and division comboboxes */
                     for (int i = 1; i <= result.getMetaData().getColumnCount(); i++) {
                         String columnName = result.getMetaData().getColumnName(i);
                         if (columnName.equals("Division_ID")) {
 //
-                            /** Get country ID */
+                            /* Get country ID */
                             String query = "SELECT Country_ID FROM first_level_divisions WHERE division_id = '" +
                                     result.getString(i) + "'";
 
@@ -78,7 +79,7 @@ public class AddEditCustomer {
             e.printStackTrace();
         }
 
-        /** Add countries to their combobox. Divisions will be added to the scene later. */
+        /* Add countries to their combobox. Divisions will be added to the scene later. */
         DBInteraction.getComboBoxOptions("SELECT country FROM countries", customer_country);
     }
 
@@ -110,7 +111,7 @@ public class AddEditCustomer {
 
         if (textFieldsFilled && comboBoxesFilled && isValidPhoneNum) {
 
-            /** Get strings from input fields */
+            /* Get strings from input fields */
             Customer customer = new Customer();
             if (!customer_id.getText().equals("")) {
                 customer.setCustomer_id(Integer.parseInt(customer_id.getText()));
@@ -121,14 +122,14 @@ public class AddEditCustomer {
             customer.setPhone(customer_phone.getText());
             customer.setDivision(customer_division.getValue().toString());
 
-            /** Convert division name to its respective id */
+            /* Convert division name to its respective id */
             String getDivisionIDQuery = "SELECT division_id from first_level_divisions WHERE Division = '" + customer.getDivision() + "'";
             String customerDivisionID = String.valueOf(DBInteraction.simpleQuery(getDivisionIDQuery));
 
-            /**
-             * Check if there's a customer id already
-             * If there is one already, update a row that already exists
-             * If not, insert a new row into the SQL database
+            /*
+              Check if there's a customer id already
+              If there is one already, update a row that already exists
+              If not, insert a new row into the SQL database
              */
             String query;
             if (Main.updateDatabase) {
