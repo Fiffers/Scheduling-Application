@@ -32,11 +32,13 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class Index implements Initializable {
-    @FXML private Label signed_in_as, sign_out;
+    @FXML private Label signed_in_as, sign_out, upcoming_appointments;
     @FXML private TableView<Appointment> appointments_table;
     @FXML private TableView<Customer> customers_table;
     @FXML private TableView<Contact> contacts_table;
     @FXML private Button appointment_edit, customer_edit, contact_edit, appointment_delete, customer_delete, contact_delete;
+    @FXML private ToggleButton filter_enable;
+    @FXML private RadioButton filter_week, filter_month;
 
     ObservableList<Appointment> appointmentList = FXCollections.observableArrayList();
     ObservableList<Customer>    customerList    = FXCollections.observableArrayList();
@@ -77,7 +79,8 @@ public class Index implements Initializable {
     }
 
     public void appointmentsTableInsertData(String string) {
-
+        appointments_table.getItems().clear();
+        appointments_table.getColumns().clear();
         try {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
             ResultSet result = ps.executeQuery();
@@ -104,6 +107,48 @@ public class Index implements Initializable {
                 /* Convert ZDT to local time zone */
                 startZDT = TimeZoneConverter.toZone(startZDT, ZoneId.systemDefault());
                 endZDT   = TimeZoneConverter.toZone(endZDT, ZoneId.systemDefault());
+
+                appointment.setStart(TimeZoneConverter.makeReadable(startZDT));
+                appointment.setEnd(TimeZoneConverter.makeReadable(endZDT));
+
+                ZonedDateTime currentZDT = ZonedDateTime.now(ZoneId.systemDefault());
+                ZonedDateTime soonWindow = ZonedDateTime.now(ZoneId.systemDefault()).plusMinutes(15);
+
+                boolean isStartBetween = startZDT.isAfter(currentZDT) && startZDT.isBefore(soonWindow);
+                boolean isEndBetween   = endZDT.isAfter(currentZDT) && endZDT.isBefore(soonWindow);
+                boolean isSameUser     = Main.username.equals(appointment.getUser_name());
+
+                System.out.println(isEndBetween);
+
+                if ((isStartBetween || isEndBetween) && isSameUser) {
+                    int delta = 0;
+                    if (startZDT.getHour() == currentZDT.getHour()) {
+                        delta = startZDT.getMinute() - currentZDT.getMinute();
+                    }
+                    else {
+                         int hourDelta = startZDT.getHour() - currentZDT.getHour();
+                         delta = (startZDT.getMinute() - currentZDT.getMinute()) * hourDelta;
+                    }
+                    String deltaMinutes;
+                    if (delta == 1) {
+                        deltaMinutes = "Starts in " + delta + " minute";
+                    }
+                    else if (delta <= 0) {
+                        deltaMinutes = "This appointment has already started!";
+                    }
+                    else {
+                        deltaMinutes = "Starts in" + delta + " minutes";
+                    }
+
+                    upcoming_appointments.setText("Next Appointment: " + appointment.getTitle() + "\n" + deltaMinutes);
+                    String informationString = "You have an appointment soon!\n" +
+                            "Appointment ID: " + appointment.getAppointment_id() + "\n" +
+                            "Title: " + appointment.getTitle() + "\n" +
+                            "Type: " + appointment.getType() + "\n" +
+                            "Start: " + appointment.getStart() + "\n" +
+                            "End: " + appointment.getEnd();
+                    Popup.informationAlert("Upcoming appointment!", informationString);
+                }
 
                 /* Format it into a user-friendly string for easier readability */
                 String start = TimeZoneConverter.makeReadable(startZDT);
@@ -291,5 +336,44 @@ public class Index implements Initializable {
         Main.username            = null;
         Main.userID              = null;
         Main.updateDatabase      = false;
+    }
+
+    public void enableFilter() {
+        if (filter_enable.isSelected()) {
+            filter_week.setDisable(false);
+            filter_month.setDisable(false);
+            filterWeek();
+        }
+        else {
+            filter_week.setDisable(true);
+            filter_month.setDisable(true);
+            appointmentsTableInsertData(appointments_table_data);
+        }
+        filter_week.setSelected(true);
+        filter_month.setSelected(false);
+    }
+
+    public void filterWeek() {
+        if (filter_enable.isSelected()) {
+            filter_week.setSelected(true);
+            filter_month.setSelected(false);
+            filterAppointments(7);
+        }
+    }
+
+    public void filterMonth() {
+        if (filter_enable.isSelected()) {
+            filter_month.setSelected(true);
+            filter_week.setSelected(false);
+            filterAppointments(30);
+        }
+    }
+
+    public void filterAppointments(int days) {
+        Timestamp startWindow = TimeZoneConverter.toSQL(ZonedDateTime.now(ZoneId.of("UTC")));
+        Timestamp endWindow = TimeZoneConverter.toSQL(ZonedDateTime.now(ZoneId.of("UTC")).plusDays(days));
+
+        String query = appointments_table_data + " WHERE Start BETWEEN '" + startWindow + "' AND '" + endWindow + "'";
+        appointmentsTableInsertData(query);
     }
 }
