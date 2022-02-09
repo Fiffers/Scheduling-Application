@@ -9,7 +9,6 @@ import java.io.FileReader;
 public class ResetDatabase {
     /**
      * Resets the database to defaults defined in C195NewDB.sql
-     * @throws Exception
      */
     public static void toDefaults() throws Exception {
         try {
