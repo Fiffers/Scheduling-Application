@@ -14,12 +14,9 @@ import java.io.FileNotFoundException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
-import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import java.util.Objects;
 import java.util.Scanner;
 
 public class InputValidator {
