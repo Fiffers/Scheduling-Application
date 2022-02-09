@@ -6,17 +6,14 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import model.Appointment;
-import model.Customer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-
 import java.util.Scanner;
 
 public class InputValidator {
@@ -35,6 +32,12 @@ public class InputValidator {
         return true;
     }
 
+    /**
+     * Checks if the user actually filled in a text-area with text
+     * @param textArea The text-area to check
+     * @param string The string provided by the user
+     * @return true if the text-area is not empty
+     */
     public static boolean textAreaFilled(TextArea textArea, String string) {
         if (textArea.getText().isEmpty()) {
             Popup.errorAlert("Error", "Make sure you input " + string + "!");
@@ -57,6 +60,12 @@ public class InputValidator {
         return true;
     }
 
+    /**
+     * Checks if the user actually selected an option with the DatePicker
+     * @param datePicker The DatePicker to check
+     * @param string The string provided by the user
+     * @return true if the DatePicker is not empty
+     */
     public static boolean datePickerFilled(DatePicker datePicker, String string) {
         if (datePicker.getValue() == null) {
             Popup.errorAlert("Error", "Make sure you select " + string + "!");
@@ -93,8 +102,14 @@ public class InputValidator {
         return false;
     }
 
+    /**
+     * Pretty much just verifies that the phone number only has hyphens, parentheses, or numbers in it
+     * @param string The string to be checked
+     * @return true if the phone number is valid
+     */
     public static boolean isPhoneNumber(String string) {
-        string = string.replaceAll("-", "");
+        string = string.replaceAll("-", "").replaceAll("\\(", "").replaceAll("\\)", "");
+
         try {
             Long.parseLong(string);
             return true;
@@ -105,6 +120,11 @@ public class InputValidator {
         }
     }
 
+    /**
+     * Verifies that the user input a possible hour value in 24hr format
+     * @param string The string to be checked
+     * @return true of the hour is valid
+     */
     public static boolean isValidHour(String string) {
         try {
             Integer.parseInt(string);
@@ -119,6 +139,12 @@ public class InputValidator {
             return false;
         }
     }
+
+    /**
+     * Verifies that the user input a possible minute value
+     * @param string The string to be checked
+     * @return true of the minute is valid
+     */
     public static boolean isValidMinute(String string) {
         try {
             Integer.parseInt(string);
@@ -181,7 +207,14 @@ public class InputValidator {
         return true;
     }
 
-    public static boolean noAppointmentOverlap(ZonedDateTime zdt, String customerID, String appointmentID) throws SQLException {
+    /**
+     * Checks to see if a customers saved appointment might have overlaps with another appointment of theirs
+     * @param zdt The ZonedDateTime for the new appointment
+     * @param customerID The customer who we're checking against
+     * @param appointmentID The appointment ID, if any. Helps us determine if we're updating or adding a new appointment.
+     * @return true if there is  no overlap
+     */
+    public static boolean noAppointmentOverlap(ZonedDateTime zdt, String customerID, String appointmentID) {
         try {
             String query = "SELECT Appointment_ID, Title, Start, End FROM appointments WHERE Customer_ID = '" + customerID + "'";
 
@@ -195,14 +228,11 @@ public class InputValidator {
                 appointment.setStartUTC(result.getString("Start"));
                 appointment.setEndUTC(result.getString("End"));
 
-
                 ZonedDateTime startZDT = TimeZoneConverter.stringToZonedDateTime(appointment.getStartUTC(), ZoneId.of("UTC"));
                 ZonedDateTime endZDT   = TimeZoneConverter.stringToZonedDateTime(appointment.getEndUTC(), ZoneId.of("UTC"));
 
                 ZonedDateTime startZDTLocal = TimeZoneConverter.toZone(startZDT, ZoneId.systemDefault());
                 ZonedDateTime endZDTLocal   = TimeZoneConverter.toZone(endZDT, ZoneId.systemDefault());
-
-
 
                 appointment.setStart(TimeZoneConverter.makeReadable(startZDTLocal));
                 appointment.setEnd(TimeZoneConverter.makeReadable(endZDTLocal));
@@ -212,8 +242,6 @@ public class InputValidator {
 
                 boolean isBetween = zdt.isAfter(startZDT) && zdt.isBefore(endZDT);
                 boolean isEqual = zdt.isEqual(startZDT) || zdt.isEqual(endZDT);
-
-
 
                 if (!appointmentID.equals(result.getString("Appointment_ID")) && (isBetween || isEqual)) {
                     String errorString = "This appointment overlaps with another.\n" +
@@ -232,6 +260,12 @@ public class InputValidator {
         return true;
     }
 
+    /**
+     * Verifies that the start time is before the end time
+     * @param start The start time
+     * @param end The end time
+     * @return true if the start time is before the end time
+     */
     public static boolean isStartBeforeEnd(ZonedDateTime start, ZonedDateTime end) {
         if (start.isAfter(end) || start.equals(end)) {
             String errorString = "Your start time and end time appear to be incorrect.\n" +

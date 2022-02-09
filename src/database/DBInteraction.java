@@ -42,6 +42,11 @@ public class DBInteraction {
         }
     }
 
+    /**
+     * Sets the selected combobox option for a specific combobox
+     * @param string The SQL query
+     * @param comboBox The combobox to manipulate
+     */
     public static void setSelectedComboBoxOption(String string, ComboBox comboBox) {
         try {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
@@ -54,6 +59,11 @@ public class DBInteraction {
         }
     }
 
+    /**
+     * SQL query wrapper that handles really simple queries that intentionally return only one row
+     * @param string The SQL query
+     * @return The query result
+     */
     public static String simpleQuery(String string) {
         try {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
@@ -63,7 +73,7 @@ public class DBInteraction {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return string;
+        return null;
     }
 
     /**

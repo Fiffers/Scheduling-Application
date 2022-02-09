@@ -6,11 +6,11 @@ import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class DBConnection {
-
-
-
     private static Connection conn = null;
 
+    /**
+     * Our connection to the SQL Database
+     */
     public static void startConnection() {
         ResourceBundle env = ResourceBundle.getBundle("env");
         String DB_URL = env.getString("DB_URL");
@@ -24,10 +24,17 @@ public class DBConnection {
         }
     }
 
+    /**
+     * Gets the connection
+     * @return the connection
+     */
     public static Connection getConnection() {
         return conn;
     }
 
+    /**
+     * Closes the connection
+     */
     public static void closeConnection() {
         try {
             conn.close();

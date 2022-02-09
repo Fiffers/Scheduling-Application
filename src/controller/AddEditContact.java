@@ -15,6 +15,10 @@ public class AddEditContact {
     @FXML private TextField contact_id, contact_name, contact_email;
     @FXML private Label contact_label;
 
+    /**
+     * Grabs all the data for a selected contact, and inserts that data into their respective elements
+     * to allow the user to edit them easily.
+     */
     public void initialize() {
 
         /*

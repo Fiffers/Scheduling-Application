@@ -1,5 +1,7 @@
 package controller;
 
+import database.DBConnection;
+import database.DBInteraction;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -8,27 +10,22 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-
-
 import main.Main;
-import database.DBConnection;
-import database.DBInteraction;
 import model.Appointment;
 import model.Contact;
 import model.Customer;
 import utilities.Popup;
-
 import utilities.TimeZoneConverter;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.*;
-
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-
 import java.util.Locale;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class Index implements Initializable {
@@ -64,20 +61,24 @@ public class Index implements Initializable {
 
     }
 
-    public void buildColumns(ResultSet result, TableView tableView) throws SQLException {
+    /**
+     * Builds the columns for a tableview based on a result from an SQL query, then inserts them into a tableview
+     * @param result The resultset used to determine number of columns and their names
+     * @param tableView The tableview to add the columns into
+     */
+    public static void buildColumns(ResultSet result, TableView tableView) throws SQLException {
         for (int i = 1; i <= result.getMetaData().getColumnCount(); i++) {
             String columnName = result.getMetaData().getColumnName(i);
             TableColumn column = new TableColumn(columnName);
             column.setCellValueFactory(new PropertyValueFactory<Customer, String>(columnName.toLowerCase(Locale.ROOT)));
-            if (Objects.equals(column.textProperty().getValue(), "Customer_ID") ||
-                Objects.equals(column.textProperty().getValue(), "Contact_ID") ||
-                Objects.equals(column.textProperty().getValue(), "Appointment_ID")) {
-                column.setVisible(false);
-            }
             tableView.getColumns().addAll(column);
         }
     }
 
+    /**
+     * Gets data for appointments and inserts the data into the appointments_table tableview
+     * @param string The SQL query to perform
+     */
     public void appointmentsTableInsertData(String string) {
         appointments_table.getItems().clear();
         appointments_table.getColumns().clear();
@@ -118,10 +119,8 @@ public class Index implements Initializable {
                 boolean isEndBetween   = endZDT.isAfter(currentZDT) && endZDT.isBefore(soonWindow);
                 boolean isSameUser     = Main.username.equals(appointment.getUser_name());
 
-                System.out.println(isEndBetween);
-
                 if ((isStartBetween || isEndBetween) && isSameUser) {
-                    int delta = 0;
+                    int delta;
                     if (startZDT.getHour() == currentZDT.getHour()) {
                         delta = startZDT.getMinute() - currentZDT.getMinute();
                     }
@@ -170,6 +169,10 @@ public class Index implements Initializable {
         }
     }
 
+    /**
+     * Gets data for customer and inserts the data into the customers_table tableview
+     * @param string The SQL query to perform
+     */
     public void customersTableInsertData(String string) {
 
         try {
@@ -201,6 +204,10 @@ public class Index implements Initializable {
         }
     }
 
+    /**
+     * Gets data for contacts and inserts the data into the contacts_table tableview
+     * @param string The SQL query to perform
+     */
     public void contactsTableInsertData(String string) {
         try {
             PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
@@ -326,6 +333,10 @@ public class Index implements Initializable {
         }
     }
 
+    /**
+     * Signs out the user by changing to the login scene and emptying any global variables
+     * @param event The button press
+     */
     public void signOut(Event event) throws IOException {
         SceneController.changeScene("/view/Login.fxml", "Login", event, false);
 
@@ -338,6 +349,10 @@ public class Index implements Initializable {
         Main.updateDatabase      = false;
     }
 
+    /**
+     * Fired when the filter_enable toggle is selected.
+     * Disables and Enables other elements appropriately.
+     */
     public void enableFilter() {
         if (filter_enable.isSelected()) {
             filter_week.setDisable(false);
@@ -353,6 +368,10 @@ public class Index implements Initializable {
         filter_month.setSelected(false);
     }
 
+    /**
+     * Fired when the filter_week radio button is selected.
+     * Updates the appointments table with all appointments within the next week
+     */
     public void filterWeek() {
         if (filter_enable.isSelected()) {
             filter_week.setSelected(true);
@@ -361,6 +380,10 @@ public class Index implements Initializable {
         }
     }
 
+    /**
+     * Fired when the filter_month radio button is selected.
+     * Updates the appointments table with all appointments within the next month
+     */
     public void filterMonth() {
         if (filter_enable.isSelected()) {
             filter_month.setSelected(true);
@@ -369,11 +392,23 @@ public class Index implements Initializable {
         }
     }
 
+    /**
+     * Filters out the appointments that aren't between two days and keeps the ones that are
+     * @param days The number of days in the future you want to see appointments for
+     */
     public void filterAppointments(int days) {
         Timestamp startWindow = TimeZoneConverter.toSQL(ZonedDateTime.now(ZoneId.of("UTC")));
         Timestamp endWindow = TimeZoneConverter.toSQL(ZonedDateTime.now(ZoneId.of("UTC")).plusDays(days));
 
         String query = appointments_table_data + " WHERE Start BETWEEN '" + startWindow + "' AND '" + endWindow + "'";
         appointmentsTableInsertData(query);
+    }
+
+    /**
+     * Changes to the metrics scene
+     * @param event The button press
+     */
+    public void viewMetrics(Event event) throws IOException {
+        SceneController.changeScene("/view/Metrics.fxml", "Metrics", event,false);
     }
 }

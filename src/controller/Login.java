@@ -47,7 +47,7 @@ public class Login implements Initializable {
      * Verifies the user and displays next scene if user is successfully authenticated
      * @param actionEvent The button press action
      */
-    public void onLoginButtonPressed(ActionEvent actionEvent) throws IOException {
+    public void onLoginButtonPressed(ActionEvent actionEvent) {
         String username = login_username.getText().toLowerCase();
         String password = login_password.getText();
         boolean auth = auth("SELECT User_ID, User_Name, Password FROM users WHERE User_Name = '" + username + "' AND Password = '" + password + "'");
