@@ -9,6 +9,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Locale;
@@ -30,7 +32,7 @@ public class Main extends Application {
 
     /* Debug booleans */
     static boolean franceToggle            = false;
-    static boolean resetDatabaseToDefaults = true;
+    static boolean resetDatabaseToDefaults = false;
 
     /**
      * Creates stage, applies scene to it, and shows the stage.
@@ -85,4 +87,6 @@ public class Main extends Application {
         launch();
         DBConnection.closeConnection();
     }
+
+
 }

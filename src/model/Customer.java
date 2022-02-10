@@ -8,6 +8,7 @@ public class Customer {
     String phone;
     String division;
 
+
     public Customer() {}
 
     public Customer(int customer_id, String customer_name, String address, String postal_code, String phone, String division) {
@@ -17,6 +18,7 @@ public class Customer {
         this.postal_code = postal_code;
         this.phone = phone;
         this.division = division;
+
     }
 
     public int getCustomer_id() {

@@ -56,7 +56,9 @@ public class AddEditContact {
 
             /* Get strings from input fields */
             Contact contact = new Contact();
-            contact.setContact_id(Integer.parseInt(contact_id.getText()));
+            if (!contact_id.getText().equals("")) {
+                contact.setContact_id(Integer.parseInt(contact_id.getText()));
+            }
             contact.setContact_name(contact_name.getText());
             contact.setEmail(contact_email.getText());
 
@@ -67,12 +69,22 @@ public class AddEditContact {
              */
             String query;
             if (Main.updateDatabase) {
-                query = "UPDATE contacts SET Contact_Name = '" + contact.getContact_name() + "', Email = '" + contact.getEmail() + "'" +
-                        "WHERE Contact_ID = '" + contact.getContact_id() + "'";
+                query = """
+                        UPDATE contacts
+                        SET    contact_name = '%s',
+                               email = '%s'
+                        WHERE  contact_id = '%s'"""
+                        .formatted(contact.getContact_name(), contact.getEmail(), contact.getContact_id());
+
             }
             else {
-                query = "INSERT INTO contacts (Contact_Name, Email) " +
-                        "VALUES ('" + contact.getContact_name() + "', '" + contact.getEmail() + "')";
+                query = """
+                        INSERT INTO contacts
+                                    (contact_name,
+                                     email)
+                        VALUES      ('%s',
+                                     '%s')"""
+                        .formatted(contact.getContact_name(), contact.getEmail());
             }
             DBInteraction.update(query);
 

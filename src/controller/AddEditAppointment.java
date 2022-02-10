@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 
 import java.sql.*;
 import java.time.*;
+import java.util.Objects;
 
 
 import main.Main;
@@ -133,7 +134,8 @@ public class AddEditAppointment {
             if (!appointment_id.getText().equals("")) {
                 appointmentID = appointment_id.getText().toString();
             }
-            String customerID           =  DBInteraction.simpleQuery("SELECT Customer_ID FROM customers WHERE Customer_Name = '" + appointment_customer.getValue().toString() + "'");
+            String customerID = DBInteraction.simpleQuery("SELECT Customer_ID FROM customers WHERE Customer_Name = '%s'"
+                    .formatted(appointment_customer.getValue().toString()));
             boolean noStartOverlap = InputValidator.noAppointmentOverlap(startTimeUTC, customerID, appointmentID);
             boolean noEndOverlap   = InputValidator.noAppointmentOverlap(endTimeUTC, customerID, appointmentID);
             boolean noOverlap = noStartOverlap && noEndOverlap;
@@ -158,8 +160,10 @@ public class AddEditAppointment {
                 appointment.setCustomer_name(appointment_customer.getValue().toString());
                 appointment.setContact_name(appointment_contact.getValue().toString());
                 appointment.setCustomer_id(Integer.parseInt(customerID));
-                appointment.setContact_id(Integer.parseInt(DBInteraction.simpleQuery("SELECT Contact_ID FROM contacts WHERE Contact_Name = '" + appointment.getContact_name() + "'")));
-                appointment.setUser_id(Integer.parseInt(DBInteraction.simpleQuery("SELECT User_ID FROM users WHERE User_Name = '" + appointment.getUser_name() + "'")));
+                appointment.setContact_id(Integer.parseInt(Objects.requireNonNull(DBInteraction.simpleQuery("SELECT Contact_ID FROM contacts WHERE Contact_Name = '%s'"
+                        .formatted(appointment.getContact_name())))));
+                appointment.setUser_id(Integer.parseInt(Objects.requireNonNull(DBInteraction.simpleQuery("SELECT User_ID FROM users WHERE User_Name = '%s'"
+                        .formatted(appointment.getUser_name())))));
             }
 
             /* Checks if we're submitting a change to an existing row in the table or if we're adding a new row, then
@@ -167,19 +171,79 @@ public class AddEditAppointment {
             if (inputValid){
                 String query;
                 if (Main.updateDatabase) {
-                    query = "UPDATE appointments SET Title = '" + appointment.getTitle() + "', Description = '" + appointment.getDescription() + "', " +
-                            "Location = '" + appointment.getLocation() + "', Type = '" + appointment.getType() + "', Start = '" + startTime + "', End = '" + endTime + "', " +
-                            "Last_Update = '" + now + "', Last_Updated_By = '" + Main.username + "', Customer_ID = '" + appointment.getCustomer_id() + "', " +
-                            "User_ID = '" + appointment.getUser_id() + "', Contact_ID = '" + appointment.getContact_id() + "'" +
-                            "WHERE Appointment_ID = '" + appointment.getAppointment_id() + "'";
+                    query = """
+                            UPDATE appointments
+                            SET    title = '%s',
+                                   description = '%s',
+                                   location = '%s',
+                                   type = '%s',
+                                   start = '%s',
+                                   end = '%s',
+                                   last_update = '%s',
+                                   last_updated_by = '%s',
+                                   customer_id = '%s',
+                                   user_id = '%s',
+                                   contact_id = '%s'
+                            WHERE  appointment_id = '%s'"""
+                            .formatted(
+                                    appointment.getTitle(),
+                                    appointment.getDescription(),
+                                    appointment.getLocation(),
+                                    appointment.getType(),
+                                    startTime,
+                                    endTime,
+                                    Timestamp.from(Instant.now()),
+                                    Main.username,
+                                    appointment.getCustomer_id(),
+                                    appointment.getUser_id(),
+                                    appointment.getContact_id(),
+                                    appointment.getAppointment_id()
+                            );
                 }
                 else {
-                    query = "INSERT INTO appointments (Title, Description, Location, Type, Start, End, Create_Date, Created_By, Last_Update, Last_Updated_By, Customer_ID, User_ID, Contact_ID) " +
-                            "VALUES ('" + appointment.getTitle() + "', '" + appointment.getDescription() + "', '" + appointment.getLocation() + "', '" + appointment.getType() + "', '" +
-                            startTime + "', '" + endTime + "', '" + now + "', '" + Main.username + "', '" + now
-                            + "', '" + Main.username + "', '" + appointment.getCustomer_id() + "', '" + appointment.getUser_id()  +
-                            "', '" + appointment.getContact_id() + "')";
-
+                    query = """
+                            INSERT INTO appointments
+                                        (title,
+                                         description,
+                                         location,
+                                         type,
+                                         start,
+                                         end,
+                                         create_date,
+                                         created_by,
+                                         last_update,
+                                         last_updated_by,
+                                         customer_id,
+                                         user_id,
+                                         contact_id)
+                            VALUES      ('%s',
+                                         '%s',
+                                         '%s',
+                                         '%s',
+                                         '%s',
+                                         '%s',
+                                         '%s',
+                                         '%s',
+                                         '%s',
+                                         '%s',
+                                         '%s',
+                                         '%s',
+                                         '%s')"""
+                            .formatted(
+                                    appointment.getTitle(),
+                                    appointment.getDescription(),
+                                    appointment.getLocation(),
+                                    appointment.getType(),
+                                    startTime,
+                                    endTime,
+                                    Timestamp.from(Instant.now()),
+                                    Main.username,
+                                    Timestamp.from(Instant.now()),
+                                    Main.username,
+                                    appointment.getCustomer_id(),
+                                    appointment.getUser_id(),
+                                    appointment.getContact_id()
+                            );
                 }
                 DBInteraction.update(query);
                 SceneController.changeScene("/view/Index.fxml", "Scheduler", event, false);
