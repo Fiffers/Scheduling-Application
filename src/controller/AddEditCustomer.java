@@ -48,7 +48,12 @@ public class AddEditCustomer {
                 customer_division.setValue(Main.selectedCustomer.getDivision());
 
                 /* Perform an SQL query based upon the Customer ID */
-                String string = "SELECT * FROM customers WHERE customer_id = '" + Main.selectedCustomer.getCustomer_id() + "'";
+                String string = """
+                        SELECT *
+                        FROM   customers
+                        WHERE  customer_id = '%s'"""
+                        .formatted(Main.selectedCustomer.getCustomer_id());
+
                 PreparedStatement ps = DBConnection.getConnection().prepareStatement(string);
                 ResultSet result = ps.executeQuery();
                 while (result.next()) {
@@ -59,13 +64,14 @@ public class AddEditCustomer {
                         if (columnName.equals("Division_ID")) {
 //
                             /* Get country ID */
-                            String query = "SELECT Country_ID FROM first_level_divisions WHERE division_id = '" +
-                                    result.getString(i) + "'";
+                            String query = "SELECT Country_ID FROM first_level_divisions WHERE division_id = '%s'"
+                                    .formatted(result.getString(i));
 
                             String countryID = DBInteraction.simpleQuery(query);
 
 //                            /** Get country name from its ID and set combobox to that value */
-                            query = "SELECT Country FROM countries WHERE country_id = '" + countryID + "'";
+                            query = "SELECT Country FROM countries WHERE country_id = '%s'"
+                                    .formatted(countryID);
                             DBInteraction.setSelectedComboBoxOption(query, customer_country);
 
 
@@ -122,10 +128,11 @@ public class AddEditCustomer {
             customer.setPhone(customer_phone.getText());
             customer.setDivision(customer_division.getValue().toString());
 
-            /* Convert division name to its respective id */
+
+            /* Convert division name to its respective id and store it in the model*/
             String getDivisionIDQuery = "SELECT division_id from first_level_divisions WHERE Division = '" + customer.getDivision() + "'";
             String customerDivisionID = String.valueOf(DBInteraction.simpleQuery(getDivisionIDQuery));
-
+            customer.setDivision(customerDivisionID);
             /*
               Check if there's a customer id already
               If there is one already, update a row that already exists
@@ -133,15 +140,43 @@ public class AddEditCustomer {
              */
             String query;
             if (Main.updateDatabase) {
-                query = "UPDATE customers SET Customer_Name = '" + customer.getCustomer_name() + "', Address = '" + customer.getAddress() + "'," +
-                        " Postal_Code = '" + customer.getPostal_code() + "', Phone = '" + customer.getPhone() + "', Division_ID = '" +
-                        Integer.valueOf(customerDivisionID) + "' " +
-                        "WHERE Customer_ID = '" + customer.getCustomer_id() + "'";
+                query = """
+                        UPDATE customers
+                        SET    customer_name = '%s',
+                               address = '%s',
+                               postal_code = '%s',
+                               phone = '%s',
+                               division_id = '%s'
+                        WHERE  customer_id = '%s'"""
+                        .formatted(
+                                customer.getCustomer_name(),
+                                customer.getAddress(),
+                                customer.getPostal_code(),
+                                customer.getPhone(),
+                                customer.getDivision(),
+                                customer.getCustomer_id()
+                        );
             }
             else {
-                query = "INSERT INTO customers (Customer_Name, Address, Postal_Code, Phone, Division_ID) " +
-                        "VALUES ('" + customer.getCustomer_name() + "', '" + customer.getAddress() + "', '" + customer.getPostal_code() + "', '" +
-                        customer.getPhone() + "', '" + Integer.valueOf(customerDivisionID) + "')";
+                query = """
+                        INSERT INTO customers
+                                    (customer_name,
+                                     address,
+                                     postal_code,
+                                     phone,
+                                     division_id)
+                        VALUES      ('%s',
+                                     '%s',
+                                     '%s',
+                                     '%s',
+                                     '%s')"""
+                        .formatted(
+                                customer.getCustomer_name(),
+                                customer.getAddress(),
+                                customer.getPostal_code(),
+                                customer.getPhone(),
+                                customer.getDivision()
+                        );
             }
             DBInteraction.update(query);
 
@@ -152,15 +187,17 @@ public class AddEditCustomer {
     /**
      * Changes available options in the division combobox based on which country is selected
      * Called when editing an already existing customer, or when a user selects a customer
-     * @throws Exception
      */
-    public void selectCustomerCountry() throws Exception {
+    public void selectCustomerCountry() {
         customer_division.setDisable(false);
         String selectedCountry = customer_country.getValue().toString();
 
-        String query = "SELECT division FROM first_level_divisions " +
-                "INNER JOIN countries ON countries.Country_ID=first_level_divisions.Country_ID " +
-                "WHERE Country = '" + selectedCountry + "'";
+        String query = """
+                SELECT division
+                FROM   first_level_divisions
+                       INNER JOIN countries
+                               ON countries.country_id = first_level_divisions.country_id
+                WHERE  country = '%s'""".formatted(selectedCountry);
         DBInteraction.getComboBoxOptions(query, customer_division);
     }
 }

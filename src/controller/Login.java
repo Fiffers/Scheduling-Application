@@ -50,7 +50,8 @@ public class Login implements Initializable {
     public void onLoginButtonPressed(ActionEvent actionEvent) {
         String username = login_username.getText().toLowerCase();
         String password = login_password.getText();
-        boolean auth = auth("SELECT User_ID, User_Name, Password FROM users WHERE User_Name = '" + username + "' AND Password = '" + password + "'");
+        boolean auth = auth("SELECT User_ID, User_Name, Password FROM users WHERE User_Name = '%s' AND Password = '%s'"
+                .formatted(username, password));
         try {
             if (auth) {
                 SceneController.changeScene("/view/Index.fxml", "Scheduler", actionEvent, false);

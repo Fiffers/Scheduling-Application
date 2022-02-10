@@ -29,6 +29,8 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class Index implements Initializable {
+
+
     @FXML private Label signed_in_as, sign_out, upcoming_appointments;
     @FXML private TableView<Appointment> appointments_table;
     @FXML private TableView<Customer> customers_table;
@@ -41,15 +43,43 @@ public class Index implements Initializable {
     ObservableList<Customer>    customerList    = FXCollections.observableArrayList();
     ObservableList<Contact>     contactList     = FXCollections.observableArrayList();
 
-    String appointments_table_data = "SELECT Appointment_ID, Title, Description, Location, Type, Start, End, " +
-            "customers.Customer_Name, users.User_Name, contacts.Contact_Name FROM appointments " +
-            "INNER JOIN customers on appointments.Customer_ID=customers.Customer_ID " +
-            "JOIN contacts on appointments.Contact_ID=contacts.Contact_ID " +
-            "JOIN users on appointments.User_ID=users.User_ID";
-    String customers_table_data = "SELECT Customer_ID, Customer_Name, Address, Postal_Code, Phone, " +
-            "first_level_divisions.Division FROM customers " +
-            "INNER JOIN first_level_divisions on customers.Division_ID=first_level_divisions.Division_ID";
-    String contacts_table_data = "SELECT Contact_ID, Contact_Name,  Email FROM contacts";
+
+
+    String appointments_table_data = """
+            SELECT appointment_id,
+                   title,
+                   description,
+                   location,
+                   type,
+                   start,
+                   end,
+                   customers.customer_name,
+                   users.user_name,
+                   contacts.contact_name
+            FROM   appointments
+                   JOIN customers
+                     ON appointments.customer_id = customers.customer_id
+                   JOIN contacts
+                     ON appointments.contact_id = contacts.contact_id
+                   JOIN users
+                     ON appointments.user_id = users.user_id""";
+
+    String customers_table_data = """
+            SELECT customer_id,
+                   customer_name,
+                   address,
+                   postal_code,
+                   phone,
+                   first_level_divisions.Division
+            FROM   customers
+                   JOIN first_level_divisions
+                     ON customers.division_id = first_level_divisions.division_id""";
+
+    String contacts_table_data = """
+            SELECT contact_id,
+                   contact_name,
+                   email
+            FROM   contacts""";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -70,7 +100,7 @@ public class Index implements Initializable {
         for (int i = 1; i <= result.getMetaData().getColumnCount(); i++) {
             String columnName = result.getMetaData().getColumnName(i);
             TableColumn column = new TableColumn(columnName);
-            column.setCellValueFactory(new PropertyValueFactory<Customer, String>(columnName.toLowerCase(Locale.ROOT)));
+            column.setCellValueFactory(new PropertyValueFactory<Appointment, Object>(columnName.toLowerCase(Locale.ROOT)));
             tableView.getColumns().addAll(column);
         }
     }
@@ -136,16 +166,25 @@ public class Index implements Initializable {
                         deltaMinutes = "This appointment has already started!";
                     }
                     else {
-                        deltaMinutes = "Starts in" + delta + " minutes";
+                        deltaMinutes = "Starts in " + delta + " minutes";
                     }
 
                     upcoming_appointments.setText("Next Appointment: " + appointment.getTitle() + "\n" + deltaMinutes);
-                    String informationString = "You have an appointment soon!\n" +
-                            "Appointment ID: " + appointment.getAppointment_id() + "\n" +
-                            "Title: " + appointment.getTitle() + "\n" +
-                            "Type: " + appointment.getType() + "\n" +
-                            "Start: " + appointment.getStart() + "\n" +
-                            "End: " + appointment.getEnd();
+                    String informationString = """
+                            You have an appointment soon!
+                            Appointment ID: %s
+                            Title: %s
+                            Type: %s
+                            Start: %s
+                            End: %s"""
+                            .formatted(
+                                    appointment.getAppointment_id(),
+                                    appointment.getTitle(),
+                                    appointment.getType(),
+                                    appointment.getStart(),
+                                    appointment.getEnd()
+                            );
+
                     Popup.informationAlert("Upcoming appointment!", informationString);
                 }
 
@@ -181,7 +220,6 @@ public class Index implements Initializable {
             boolean toggle = true;
 
             while (result.next()) {
-
                 Customer customer = new Customer();
                 customer.setCustomer_id(result.getInt("Customer_ID"));
                 customer.setCustomer_name(result.getString("Customer_Name"));

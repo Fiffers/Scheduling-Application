@@ -70,8 +70,7 @@ public class Metrics {
                 typeArray[i] = result.getString("Type");
                 i++;
             }
-            /* Removes duplicate types */
-            typeArray = Arrays.stream(typeArray).distinct().toArray(String[]::new);
+
             return typeArray;
 
         } catch (SQLException e) {
@@ -82,6 +81,7 @@ public class Metrics {
 
     /**
      * Creates a bar chart of each month and the number of appointments in the database for that respective month
+     * Lambda Expression - Allows iteration through each existing bar in the bar chart
      */
     public void showAppointmentsByMonth() {
         final CategoryAxis xAxis = new CategoryAxis();
@@ -128,6 +128,7 @@ public class Metrics {
 
     /**
      * Creates a bar chart of each type of appointment and the number of appointments in the database for that respective type
+     * Lambda Expression - Allows iteration through each string in an array of strings
      */
     public void showAppointmentsByType() {
 
@@ -141,12 +142,9 @@ public class Metrics {
         yAxis.setLabel("Count");
         XYChart.Series series = new XYChart.Series();
 
-
-
-
         String[] appointmentTypes = getAppointmentTypes();
 
-        for (String type : appointmentTypes) {
+        Arrays.stream(appointmentTypes).distinct().forEach(type -> {
             try {
                 String query = "SELECT COUNT(*) FROM appointments WHERE Type = '" + type + "'";
                 PreparedStatement ps = DBConnection.getConnection().prepareStatement(query);
@@ -160,7 +158,8 @@ public class Metrics {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }
+        });
+
         bc.getData().add(series);
         firstTab.getChildren().add(bc);
 
@@ -241,8 +240,6 @@ public class Metrics {
                     appointment.setEndUTC(result.getString("End"));
                     appointment.setCustomer_id(result.getInt("Customer_ID"));
                     appointment.setContact_name(result.getString("Contact_Name"));
-
-                    System.out.println(appointment.getType());
 
                     /* Convert string to ZonedDateTime in UTC */
                     ZonedDateTime startZDT = TimeZoneConverter.stringToZonedDateTime(result.getString("Start"), ZoneId.of("UTC"));

@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"controller"},{"l":"database"},{"l":"main"},{"l":"model"},{"l":"utilities"}]
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"controller"},{"l":"database"},{"l":"main"},{"l":"model"},{"l":"utilities"}];updateSearchResults();
