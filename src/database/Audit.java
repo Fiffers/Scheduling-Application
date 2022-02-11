@@ -19,7 +19,7 @@ public class Audit {
         Path path = Paths.get("login_activity.txt");
 
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
-            String result = "Date: " + date + " | Time: " + time + "Z | Success: " + success;
+            String result = "Date: " + date + " | Time: " + time + "Z | Success: " + success + " | User ID: " + Main.user_id;
             writer.write(result);
             writer.newLine();
         } catch (IOException e) {
