@@ -23,3 +23,6 @@ This application was written to satisfy the requirements of completing the C195 
 
 ## Additional Report
 - The third report I created is a list of appointments sorted by customer
+
+## Sample
+![image](https://i.imgur.com/wQOtPmk.gif)
